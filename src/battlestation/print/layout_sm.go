@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 var smallLayout = layout{
 	"name": &cell{
 		x: 27, y: 13, w: 65, h: 8,
@@ -142,67 +144,60 @@ var smallLayout = layout{
 		fontSize:   14,
 		fontWeight: "I",
 	},
-	"sa.0.name": &cell{
-		x: 7, y: 76, w: 30, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   10,
-		fontWeight: "B",
-	},
-	"sa.0.notes": &cell{
-		x: 38, y: 76, w: 38, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   8,
-		fontWeight: "I",
-	},
-	"sa.0.pool": &cell{
-		x: 76, y: 76, w: 12, h: 6,
-		align:      "CM",
-		fontFamily: "Courier",
-		fontSize:   12,
-		fontWeight: "B",
-	},
-	"sa.1.name": &cell{
-		x: 7, y: 82, w: 30, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   10,
-		fontWeight: "B",
-	},
-	"sa.1.notes": &cell{
-		x: 38, y: 82, w: 38, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   8,
-		fontWeight: "I",
-	},
-	"sa.1.pool": &cell{
-		x: 76, y: 82, w: 12, h: 6,
-		align:      "CM",
-		fontFamily: "Courier",
-		fontSize:   12,
-		fontWeight: "B",
-	},
-	"sa.2.name": &cell{
-		x: 7, y: 88, w: 30, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   10,
-		fontWeight: "B",
-	},
-	"sa.2.notes": &cell{
-		x: 38, y: 88, w: 38, h: 6,
-		align:      "LM",
-		fontFamily: "Courier",
-		fontSize:   8,
-		fontWeight: "I",
-	},
-	"sa.2.pool": &cell{
-		x: 76, y: 88, w: 12, h: 6,
-		align:      "CM",
-		fontFamily: "Courier",
-		fontSize:   12,
-		fontWeight: "B",
-	},
+}
+
+func smallLayoutInit() {
+	//add special abilities
+	dy := 6.2
+	offsetX := 7.0
+	height := 6.0
+	tableType := "sa"
+	for row := 0; row < 10; row++ {
+		key := keyName(tableType, row, "name")
+		offset := float64(row) * dy
+		smallLayout[key] = &cell{
+			x: offsetX, y: 76 + offset, w: 30, h: height,
+			align: "LM", fontFamily: "Courier", fontSize: 10, fontWeight: "B",
+		}
+		key = keyName(tableType, row, "notes")
+		smallLayout[key] = &cell{
+			x: 31 + offsetX, y: 76 + offset, w: 38, h: height,
+			align: "LM", fontFamily: "Courier", fontSize: 8, fontWeight: "I",
+		}
+		key = keyName(tableType, row, "pool")
+		smallLayout[key] = &cell{
+			x: 69 + offsetX, y: 76 + offset, w: 12, h: height,
+			align: "CM", fontFamily: "Courier", fontSize: 12, fontWeight: "B",
+		}
+	}
+
+	tableType = "eq"
+	offsetX = 101.5
+	for row := 0; row < 10; row++ {
+		key := keyName(tableType, row, "name")
+		offset := float64(row) * dy
+		smallLayout[key] = &cell{
+			x: offsetX, y: 76 + offset, w: 30, h: height,
+			align: "LM", fontFamily: "Courier", fontSize: 10, fontWeight: "B",
+		}
+		key = keyName(tableType, row, "notes")
+		smallLayout[key] = &cell{
+			x: 30.5 + offsetX, y: 76 + offset, w: 38.5, h: height,
+			align: "LM", fontFamily: "Courier", fontSize: 8, fontWeight: "I",
+		}
+		key = keyName(tableType, row, "mass")
+		smallLayout[key] = &cell{
+			x: 69 + offsetX, y: 76 + offset, w: 14.5, h: height,
+			align: "CM", fontFamily: "Courier", fontSize: 12, fontWeight: "B",
+		}
+		key = keyName(tableType, row, "status")
+		smallLayout[key] = &cell{
+			x: 84 + offsetX, y: 76 + offset, w: 19, h: height,
+			align: "LM", fontFamily: "Courier", fontSize: 8, fontWeight: "I",
+		}
+	}
+}
+
+func keyName(tableType string, row int, field string) string {
+	return fmt.Sprintf("%s.%d.%s", tableType, row, field)
 }

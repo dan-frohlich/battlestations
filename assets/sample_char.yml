@@ -33,3 +33,33 @@ special_abilities:
   - name: Spec Abil. 3
     notes: -n-a-
     pool: "-"
+  - name: Spec Abil. 4
+    notes: note 4
+    pool: "-"
+  - name: Spec Abil. 5
+    notes: note 5
+    pool: "-"
+  - name: Spec Abil. 6
+    notes: note 6
+    pool: "-"
+  - name: Spec Abil. 7
+    notes: note 7
+    pool: "-"
+  - name: Spec Abil. 8
+    notes: note 8
+    pool: "-"
+  - name: Spec Abil. 9
+    notes: note 9
+    pool: "-"
+  - name: Spec Abil. 10
+    notes: note 10
+    pool: "-"
+
+equipment:
+  - name: Blaster
+    notes: 2d6-1 Dam
+    mass: 5
+    status: upgraded
+  - name: Medkit
+    notes: Science vs 11 to heal
+    mass: 5

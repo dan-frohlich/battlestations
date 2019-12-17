@@ -24,6 +24,8 @@ const (
 func main() {
 
 	pdf := gofpdf.New("L", "mm", "A5", baseDir)
+	//pdf.SetMargins(0, 0, 0)
+	pdf.SetAutoPageBreak(false, 0)
 	loadBkgrndImg(pdf)
 	pdf.AddPage()
 	options := gofpdf.ImageOptions{
@@ -41,12 +43,16 @@ func main() {
 	e = yaml.Unmarshal(data, &t)
 	check(e, "unmarshal  "+sampleCharFNm)
 
+	smallLayoutInit()
+
+	DrawBorder := false
+
 	for k, v := range t {
 		if s, ok := v.(string); ok {
-			smallLayout.draw(pdf, k, s, false)
+			smallLayout.draw(pdf, k, s, DrawBorder)
 		}
 		if i, ok := v.(int); ok {
-			smallLayout.draw(pdf, k, fmt.Sprintf("%d", i), false)
+			smallLayout.draw(pdf, k, fmt.Sprintf("%d", i), DrawBorder)
 		}
 	}
 
@@ -59,10 +65,29 @@ func main() {
 					v := saim[k]
 					lk := fmt.Sprintf("sa.%d.%s", i, k)
 					if vs, ok := v.(string); ok {
-						smallLayout.draw(pdf, lk, vs, false)
+						smallLayout.draw(pdf, lk, vs, DrawBorder)
 					}
 					if vi, ok := v.(int); ok {
-						smallLayout.draw(pdf, lk, fmt.Sprintf("%d", vi), false)
+						smallLayout.draw(pdf, lk, fmt.Sprintf("%d", vi), DrawBorder)
+					}
+				}
+			}
+		}
+	}
+
+	eqAttr := []string{"name", "notes", "mass", "status"}
+	eq := t["equipment"]
+	if sal, ok := eq.([]interface{}); ok {
+		for i, eqi := range sal {
+			if eqim, ok := eqi.(map[interface{}]interface{}); ok {
+				for _, k := range eqAttr {
+					v := eqim[k]
+					lk := fmt.Sprintf("eq.%d.%s", i, k)
+					if vs, ok := v.(string); ok {
+						smallLayout.draw(pdf, lk, vs, DrawBorder)
+					}
+					if vi, ok := v.(int); ok {
+						smallLayout.draw(pdf, lk, fmt.Sprintf("%d", vi), DrawBorder)
 					}
 				}
 			}
