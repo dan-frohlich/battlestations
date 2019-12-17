@@ -33,7 +33,7 @@ func main() {
 	}
 	pdf.ImageOptions(smImgNm, 5, 5, 200, 140, false, options, 0, "'")
 
-	t := map[string]string{}
+	t := map[string]interface{}{}
 	r, e := fileReader(baseDir, sampleCharFNm)
 	check(e, "load "+sampleCharFNm)
 	data, e := ioutil.ReadAll(r)
@@ -42,36 +42,37 @@ func main() {
 	check(e, "unmarshal  "+sampleCharFNm)
 
 	for k, v := range t {
-		smallLayout.draw(pdf, k, v, false)
+		if s, ok := v.(string); ok {
+			smallLayout.draw(pdf, k, s, false)
+		}
+		if i, ok := v.(int); ok {
+			smallLayout.draw(pdf, k, fmt.Sprintf("%d", i), false)
+		}
 	}
 
-	//smallLayout.draw(pdf, "name", "Lt. Dan", false)
-	//smallLayout.draw(pdf, "profession", "Scientist", false)
-	//smallLayout.draw(pdf, "species", "Human", false)
-	//smallLayout.draw(pdf, "alien_ability", "Willpower: re-roll both dice on professional skill checks, yada, yada, yada, yada, yada, yada", false)
-	//
-	//smallLayout.draw(pdf, "athletics", "1", false)
-	//smallLayout.draw(pdf, "combat", "2", false)
-	//smallLayout.draw(pdf, "engineering", "3", false)
-	//smallLayout.draw(pdf, "pilot", "4", false)
-	//smallLayout.draw(pdf, "science", "5", false)
-	//
-	//smallLayout.draw(pdf, "base_hp", "5", true)
-	//smallLayout.draw(pdf, "move", "6", true)
-	//smallLayout.draw(pdf, "luck", "6", true)
-	//smallLayout.draw(pdf, "target", "6", true)
-	//smallLayout.draw(pdf, "hands", "6", true)
+	saAttr := []string{"name", "notes", "pool"}
+	sa := t["special_abilities"]
+	if sal, ok := sa.([]interface{}); ok {
+		for i, sai := range sal {
+			if saim, ok := sai.(map[interface{}]interface{}); ok {
+				for _, k := range saAttr {
+					v := saim[k]
+					lk := fmt.Sprintf("sa.%d.%s", i, k)
+					if vs, ok := v.(string); ok {
+						smallLayout.draw(pdf, lk, vs, false)
+					}
+					if vi, ok := v.(int); ok {
+						smallLayout.draw(pdf, lk, fmt.Sprintf("%d", vi), false)
+					}
+				}
+			}
+		}
+	}
 
-	err := pdf.OutputFileAndClose("hello.pdf")
+	name := fmt.Sprintf("%s_%v_%v.pdf", t["name"], t["rank"], t["prestige"])
+	err := pdf.OutputFileAndClose(name)
 	check(err, "write pdf")
 }
-
-//
-//func loadFont(pdf *gofpdf.Fpdf) {
-//	r, err := fileReader(baseDir, fontFNm)
-//	check(err, "loading Font")
-//	pdf.AddFontFromReader(fontNm, "", r)
-//}
 
 func check(err error, msg string) {
 	if err != nil {

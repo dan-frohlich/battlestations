@@ -44,7 +44,8 @@ func (c *cell) drawCell(pdf *gofpdf.Fpdf, text string, border bool) {
 		if i != 0 {
 			line = " " + line
 		}
-		pdf.CellFormat(c.w, c.h, line, brdr, 2, c.align, false, 0, "")
+		pdf.CellFormat(c.w, c.h, line, brdr, 2, c.align, false, -1, "")
+		//pdf.Cell(c.w, c.h, line)
 	}
 }
 

@@ -20,4 +20,16 @@ target: 8
 hands: 2
 
 hp: 7
+rank: 2
 carry: 10
+
+special_abilities:
+  - name: Hacker
+    notes: hack @ -3
+    pool: 4
+  - name: Smacker
+    notes: smack-a-lot-a-frack-a
+    pool: 7
+  - name: Spec Abil. 3
+    notes: -n-a-
+    pool: "-"
