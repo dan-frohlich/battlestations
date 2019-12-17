@@ -3,19 +3,22 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
 	"github.com/jung-kurt/gofpdf"
+	"gopkg.in/yaml.v2"
 )
 
 const (
-	baseDir   = "./assets"
-	fontFNm   = "vt323"
-	fontNm    = "Roddenberry"
-	smImgNm   = "background_small"
-	smImgType = "png"
-	smImgFNm  = "sheet_sm.png"
+	baseDir       = "./assets"
+	fontFNm       = "vt323"
+	fontNm        = "Roddenberry"
+	sampleCharFNm = "sample_char.yml"
+	smImgNm       = "background_small"
+	smImgType     = "png"
+	smImgFNm      = "sheet_sm.png"
 )
 
 func main() {
@@ -30,31 +33,34 @@ func main() {
 	}
 	pdf.ImageOptions(smImgNm, 5, 5, 200, 140, false, options, 0, "'")
 
-	//c := &cell{
-	//	x: 27, y: 13, w: 65, h: 8,
-	//	align:      "LM",
-	//	fontFamily: "Courier",
-	//	fontSize:   12,
-	//	fontWeight: "",
-	//}
-	//c.drawCell(pdf, "Lt. Dan", true)
+	t := map[string]string{}
+	r, e := fileReader(baseDir, sampleCharFNm)
+	check(e, "load "+sampleCharFNm)
+	data, e := ioutil.ReadAll(r)
+	check(e, "read  "+sampleCharFNm)
+	e = yaml.Unmarshal(data, &t)
+	check(e, "unmarshal  "+sampleCharFNm)
 
-	smallLayout.draw(pdf, "name", "Lt. Dan", false)
-	smallLayout.draw(pdf, "profession", "Scientist", false)
-	smallLayout.draw(pdf, "species", "Human", false)
-	smallLayout.draw(pdf, "alien_ability", "Willpower: re-roll both dice on professional skill checks, yada, yada, yada, yada, yada, yada", false)
+	for k, v := range t {
+		smallLayout.draw(pdf, k, v, false)
+	}
 
-	smallLayout.draw(pdf, "athletics", "1", false)
-	smallLayout.draw(pdf, "combat", "2", false)
-	smallLayout.draw(pdf, "engineering", "3", false)
-	smallLayout.draw(pdf, "pilot", "4", false)
-	smallLayout.draw(pdf, "science", "5", false)
-
-	smallLayout.draw(pdf, "base_hp", "5", true)
-	smallLayout.draw(pdf, "move", "6", true)
-	smallLayout.draw(pdf, "luck", "6", true)
-	smallLayout.draw(pdf, "target", "6", true)
-	smallLayout.draw(pdf, "hands", "6", true)
+	//smallLayout.draw(pdf, "name", "Lt. Dan", false)
+	//smallLayout.draw(pdf, "profession", "Scientist", false)
+	//smallLayout.draw(pdf, "species", "Human", false)
+	//smallLayout.draw(pdf, "alien_ability", "Willpower: re-roll both dice on professional skill checks, yada, yada, yada, yada, yada, yada", false)
+	//
+	//smallLayout.draw(pdf, "athletics", "1", false)
+	//smallLayout.draw(pdf, "combat", "2", false)
+	//smallLayout.draw(pdf, "engineering", "3", false)
+	//smallLayout.draw(pdf, "pilot", "4", false)
+	//smallLayout.draw(pdf, "science", "5", false)
+	//
+	//smallLayout.draw(pdf, "base_hp", "5", true)
+	//smallLayout.draw(pdf, "move", "6", true)
+	//smallLayout.draw(pdf, "luck", "6", true)
+	//smallLayout.draw(pdf, "target", "6", true)
+	//smallLayout.draw(pdf, "hands", "6", true)
 
 	err := pdf.OutputFileAndClose("hello.pdf")
 	check(err, "write pdf")

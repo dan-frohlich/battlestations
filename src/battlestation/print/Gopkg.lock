@@ -2,14 +2,27 @@
 
 
 [[projects]]
+  digest = "1:87319aad333c69e917cd4a0295c0ea5090d0845e69aa1e362d2d8071a7a5cb41"
   name = "github.com/jung-kurt/gofpdf"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5f7ef44fbb8b640931a08e3eae8faa79e845d3a5"
   version = "v2.17.2"
+
+[[projects]]
+  digest = "1:b75b3deb2bce8bc079e16bb2aecfe01eb80098f5650f9e93e5643ca8b7b73737"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
+  version = "v2.2.7"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a10438393566e6dffa5021fb044a113c22a60511fbb015a473521cf80140721d"
+  input-imports = [
+    "github.com/jung-kurt/gofpdf",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

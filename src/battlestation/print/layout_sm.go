@@ -71,6 +71,13 @@ var smallLayout = layout{
 		fontSize:   16,
 		fontWeight: "B",
 	},
+	"hp": &cell{
+		x: 171, y: 13, w: 32, h: 8,
+		align:      "CM",
+		fontFamily: "Courier",
+		fontSize:   16,
+		fontWeight: "B",
+	},
 	"move": &cell{
 		x: 138, y: 21, w: 19, h: 8,
 		align:      "CM",
@@ -98,5 +105,34 @@ var smallLayout = layout{
 		fontFamily: "Courier",
 		fontSize:   16,
 		fontWeight: "B",
+	},
+	"carry": &cell{
+		x: 171, y: 45, w: 32, h: 8,
+		align:      "CM",
+		fontFamily: "Courier",
+		fontSize:   16,
+		fontWeight: "B",
+	},
+
+	"prestige": &cell{
+		x: 40, y: 55, w: 32, h: 6,
+		align:      "CR",
+		fontFamily: "Courier",
+		fontSize:   14,
+		fontWeight: "I",
+	},
+	"experience": &cell{
+		x: 105, y: 55, w: 32, h: 6,
+		align:      "CR",
+		fontFamily: "Courier",
+		fontSize:   14,
+		fontWeight: "I",
+	},
+	"credits": &cell{
+		x: 170, y: 55, w: 32, h: 6,
+		align:      "CR",
+		fontFamily: "Courier",
+		fontSize:   14,
+		fontWeight: "I",
 	},
 }

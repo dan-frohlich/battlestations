@@ -1,0 +1,23 @@
+name: Lt Dan
+profession: scientist
+species: human
+alien_ability: "Willpower: re-roll both dice on professional skill checks, yada, yada, yada, yada, yada, yada"
+
+prestige: 100
+experience: 100
+credits: 100
+
+athletics: 1
+combat: 2
+engineering: 3
+pilot: 4
+science: 5
+
+base_hp: 5
+move: 6
+luck: 6
+target: 8
+hands: 2
+
+hp: 7
+carry: 10
