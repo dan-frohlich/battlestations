@@ -10,6 +10,14 @@
   version = "v2.17.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:c72e01f0dbae0dd9bc671b223234c2e0549343d5fb10f182fa4da3ea79322c25"
+  name = "github.com/vincent-petithory/dataurl"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d1553a71de50473073e188aa79cebf7f993f20fe"
+
+[[projects]]
   digest = "1:b75b3deb2bce8bc079e16bb2aecfe01eb80098f5650f9e93e5643ca8b7b73737"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -22,6 +30,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/jung-kurt/gofpdf",
+    "github.com/vincent-petithory/dataurl",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

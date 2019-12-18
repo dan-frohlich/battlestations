@@ -35,13 +35,7 @@ func main() {
 	}
 	pdf.ImageOptions(smImgNm, 5, 5, 200, 140, false, options, 0, "'")
 
-	t := map[string]interface{}{}
-	r, e := fileReader(baseDir, sampleCharFNm)
-	check(e, "load "+sampleCharFNm)
-	data, e := ioutil.ReadAll(r)
-	check(e, "read  "+sampleCharFNm)
-	e = yaml.Unmarshal(data, &t)
-	check(e, "unmarshal  "+sampleCharFNm)
+	t := loadChar()
 
 	smallLayoutInit()
 
@@ -97,6 +91,27 @@ func main() {
 	name := fmt.Sprintf("%s_%v_%v.pdf", t["name"], t["rank"], t["prestige"])
 	err := pdf.OutputFileAndClose(name)
 	check(err, "write pdf")
+}
+
+func loadChar() map[string]interface{} {
+	var r io.Reader
+	var e error
+	var fileName string
+	if len(os.Args) > 1 {
+		fileName = os.Args[1]
+		r, e = os.Open(fileName)
+		check(e, "load "+fileName)
+	} else {
+		fileName = sampleCharFNm
+		r, e = fileReader(baseDir, fileName)
+		check(e, "load "+fileName)
+	}
+	t := map[string]interface{}{}
+	data, e := ioutil.ReadAll(r)
+	check(e, "read  "+fileName)
+	e = yaml.Unmarshal(data, &t)
+	check(e, "unmarshal  "+fileName)
+	return t
 }
 
 func check(err error, msg string) {

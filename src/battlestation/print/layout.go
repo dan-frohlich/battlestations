@@ -50,7 +50,7 @@ func (c *cell) drawCell(pdf *gofpdf.Fpdf, text string, border bool) {
 }
 
 func loadBkgrndImg(pdf *gofpdf.Fpdf) {
-	r, err := fileReader(baseDir, smImgFNm)
+	r, err := dataURLReader(smallImageDataURL)
 	check(err, "loading background image")
 	pdf.RegisterImageReader(smImgNm, smImgType, r)
 }
