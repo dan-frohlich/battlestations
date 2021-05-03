@@ -73,7 +73,8 @@ func main() {
 			if saim, ok := sai.(map[interface{}]interface{}); ok {
 				for _, k := range saAttr {
 					v := saim[k]
-					lk := fmt.Sprintf("sa.%d.%s", i, k)
+					lk := keyName(ttSA, i, k)
+
 					if vs, ok := v.(string); ok {
 						theLayout.draw(pdf, lk, vs, DrawBorder)
 					}
@@ -92,7 +93,7 @@ func main() {
 			if eqim, ok := eqi.(map[interface{}]interface{}); ok {
 				for _, k := range eqAttr {
 					v := eqim[k]
-					lk := fmt.Sprintf("eq.%d.%s", i, k)
+					lk := keyName(ttEq, i, k)
 					if vs, ok := v.(string); ok {
 						theLayout.draw(pdf, lk, vs, DrawBorder)
 					}

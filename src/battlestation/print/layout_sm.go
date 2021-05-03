@@ -156,7 +156,7 @@ func smallLayoutInit() {
 	dy := 6.2
 	offsetX := 7.0
 	height := 6.0
-	tableType := "sa"
+	tableType := ttSA
 	for row := 0; row < 10; row++ {
 		key := keyName(tableType, row, "name")
 		offset := float64(row) * dy
@@ -176,7 +176,7 @@ func smallLayoutInit() {
 		}
 	}
 
-	tableType = "eq"
+	tableType = ttEq
 	offsetX = 101.5
 	for row := 0; row < 10; row++ {
 		key := keyName(tableType, row, "name")
@@ -203,6 +203,11 @@ func smallLayoutInit() {
 	}
 }
 
-func keyName(tableType string, row int, field string) string {
+type tableType string
+const (
+	ttSA = tableType("sa")
+	ttEq = tableType("eq")
+)
+func keyName(tableType tableType, row int, field string) string {
 	return fmt.Sprintf("%s.%d.%s", tableType, row, field)
 }

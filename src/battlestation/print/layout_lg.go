@@ -152,7 +152,7 @@ func largeLayoutInit() {
 	dy := 6.2
 	offsetX := 7.0
 	height := 6.0
-	tableType := "sa"
+	tableType := ttSA
 	for row := 0; row < 32; row++ {
 		key := keyName(tableType, row, "name")
 		offset := float64(row) * dy
@@ -172,7 +172,7 @@ func largeLayoutInit() {
 		}
 	}
 
-	tableType = "eq"
+	tableType = ttEq
 	offsetX = 101.5
 	for row := 0; row < 32; row++ {
 		key := keyName(tableType, row, "name")
