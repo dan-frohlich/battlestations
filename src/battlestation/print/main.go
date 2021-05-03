@@ -125,7 +125,7 @@ func fileReader(baseDir, name string) (r io.Reader, err error) {
 	return os.Open(path)
 }
 
-func filePath(dir string, name string) string {
+func filePath(baseDir string, name string) string {
 	path := fmt.Sprintf("%s%c%s", baseDir, os.PathSeparator, name)
 	return path
 }
