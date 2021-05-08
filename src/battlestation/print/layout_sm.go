@@ -158,18 +158,18 @@ func smallLayoutInit() {
 	height := 6.0
 	tableType := ttSA
 	for row := 0; row < 10; row++ {
-		key := keyName(tableType, row, "name")
+		key := layoutTableKeyName(tableType, row, "name")
 		offset := float64(row) * dy
 		smallLayout[key] = &cell{
 			x: offsetX, y: 76 + offset, w: 30, h: height,
 			align: "LM", fontFamily: smallLayoutFont, fontSize: 10, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "notes")
+		key = layoutTableKeyName(tableType, row, "notes")
 		smallLayout[key] = &cell{
 			x: 31 + offsetX, y: 76 + offset, w: 38, h: height,
 			align: "LM", fontFamily: smallLayoutFont, fontSize: 8, fontWeight: "I",
 		}
-		key = keyName(tableType, row, "pool")
+		key = layoutTableKeyName(tableType, row, "pool")
 		smallLayout[key] = &cell{
 			x: 69 + offsetX, y: 76 + offset, w: 12, h: height,
 			align: "CM", fontFamily: smallLayoutFont, fontSize: 12, fontWeight: "B",
@@ -179,23 +179,23 @@ func smallLayoutInit() {
 	tableType = ttEq
 	offsetX = 101.5
 	for row := 0; row < 10; row++ {
-		key := keyName(tableType, row, "name")
+		key := layoutTableKeyName(tableType, row, "name")
 		offset := float64(row) * dy
 		smallLayout[key] = &cell{
 			x: offsetX, y: 76 + offset, w: 30, h: height,
 			align: "LM", fontFamily: smallLayoutFont, fontSize: 10, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "notes")
+		key = layoutTableKeyName(tableType, row, "notes")
 		smallLayout[key] = &cell{
 			x: 30.5 + offsetX, y: 76 + offset, w: 38.5, h: height,
 			align: "LM", fontFamily: smallLayoutFont, fontSize: 8, fontWeight: "I",
 		}
-		key = keyName(tableType, row, "mass")
+		key = layoutTableKeyName(tableType, row, "mass")
 		smallLayout[key] = &cell{
 			x: 69 + offsetX, y: 76 + offset, w: 14.5, h: height,
 			align: "CM", fontFamily: smallLayoutFont, fontSize: 12, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "status")
+		key = layoutTableKeyName(tableType, row, "status")
 		smallLayout[key] = &cell{
 			x: 84 + offsetX, y: 76 + offset, w: 19, h: height,
 			align: "LM", fontFamily: smallLayoutFont, fontSize: 8, fontWeight: "I",
@@ -203,11 +203,13 @@ func smallLayoutInit() {
 	}
 }
 
-type tableType string
+type layoutTableType string
+
 const (
-	ttSA = tableType("sa")
-	ttEq = tableType("eq")
+	ttSA = layoutTableType("sa")
+	ttEq = layoutTableType("eq")
 )
-func keyName(tableType tableType, row int, field string) string {
-	return fmt.Sprintf("%s.%d.%s", tableType, row, field)
+
+func layoutTableKeyName(tableType layoutTableType, row int, field string) layoutKey {
+	return layoutKey(fmt.Sprintf("%s.%d.%s", tableType, row, field))
 }

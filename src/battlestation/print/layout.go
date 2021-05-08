@@ -5,7 +5,9 @@ import (
 	"log"
 )
 
-type layout map[string]*cell
+type layoutKey string
+
+type layout map[layoutKey]*cell
 
 type cell struct {
 	x, y, w, h   float64
@@ -17,8 +19,8 @@ type cell struct {
 	overflowRows int
 }
 
-func (l layout) draw(pdf *gofpdf.Fpdf, name string, text string, border bool) bool {
-	c, ok := l[name]
+func (l layout) draw(pdf *gofpdf.Fpdf, key layoutKey, text string, border bool) bool {
+	c, ok := l[key]
 	if ok {
 		c.drawCell(pdf, text, border)
 	}

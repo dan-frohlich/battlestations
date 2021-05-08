@@ -1,15 +1,12 @@
 package main
 
 import (
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
 )
 
-type bsChar map[string]interface{}
-
-type bsChar2 struct {
+type bsChar struct {
 	Name             string           `yaml:"name"`
 	Profession       string           `yaml:"profession"`
 	Athletics        string           `yaml:"athletics"`
@@ -34,10 +31,19 @@ type bsChar2 struct {
 	Equipment        []Equipment      `yaml:"equipment"`
 }
 
+type charMap map[string]string
+
 type SpecialAbility struct {
 	Name  string `yaml:"name"`
 	Notes string `yaml:"notes"`
 	Pool  string `yaml:"pool"`
+}
+
+func (sa SpecialAbility) toMap() charMap {
+	b, _ := yaml.Marshal(sa)
+	m := charMap{}
+	yaml.Unmarshal(b, m)
+	return m
 }
 
 type Equipment struct {
@@ -47,15 +53,22 @@ type Equipment struct {
 	Status string `yaml:"status"`
 }
 
-func (ch bsChar2) toChar() bsChar {
+func (eq Equipment) toMap() charMap {
+	b, _ := yaml.Marshal(eq)
+	m := charMap{}
+	yaml.Unmarshal(b, m)
+	return m
+}
+
+func (ch bsChar) toMap() charMap {
 	x, _ := yaml.Marshal(ch)
-	t := bsChar{}
+	t := charMap{}
 	yaml.Unmarshal(x, &t)
 	return t
 }
 
-func loadCharFromReader(r io.Reader) bsChar2 {
-	t := bsChar2{}
+func loadCharFromReader(r io.Reader) bsChar {
+	t := bsChar{}
 	data, e := ioutil.ReadAll(r)
 	check(e, "read char")
 	e = yaml.Unmarshal(data, &t)
@@ -63,12 +76,12 @@ func loadCharFromReader(r io.Reader) bsChar2 {
 	return t
 }
 
-func (charData bsChar2) isLarge() bool {
-	if len(charData.SpecialAbilities) > 10 {
+func (ch bsChar) isLarge() bool {
+	if len(ch.SpecialAbilities) > 10 {
 		return true
 	}
 
-	if len(charData.Equipment) > 10 {
+	if len(ch.Equipment) > 10 {
 		return true
 	}
 	return false

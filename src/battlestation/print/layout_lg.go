@@ -154,18 +154,18 @@ func largeLayoutInit() {
 	height := 6.0
 	tableType := ttSA
 	for row := 0; row < 32; row++ {
-		key := keyName(tableType, row, "name")
+		key := layoutTableKeyName(tableType, row, "name")
 		offset := float64(row) * dy
 		largeLayout[key] = &cell{
 			x: offsetX, y: 76 + offset, w: 30, h: height,
 			align: "LM", fontFamily: largeLayoutFont, fontSize: 10, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "notes")
+		key = layoutTableKeyName(tableType, row, "notes")
 		largeLayout[key] = &cell{
 			x: 31 + offsetX, y: 76 + offset, w: 38, h: height,
 			align: "LM", fontFamily: largeLayoutFont, fontSize: 8, fontWeight: "I",
 		}
-		key = keyName(tableType, row, "pool")
+		key = layoutTableKeyName(tableType, row, "pool")
 		largeLayout[key] = &cell{
 			x: 69 + offsetX, y: 76 + offset, w: 12, h: height,
 			align: "CM", fontFamily: largeLayoutFont, fontSize: 12, fontWeight: "B",
@@ -175,23 +175,23 @@ func largeLayoutInit() {
 	tableType = ttEq
 	offsetX = 101.5
 	for row := 0; row < 32; row++ {
-		key := keyName(tableType, row, "name")
+		key := layoutTableKeyName(tableType, row, "name")
 		offset := float64(row) * dy
 		largeLayout[key] = &cell{
 			x: offsetX, y: 76 + offset, w: 30, h: height,
 			align: "LM", fontFamily: largeLayoutFont, fontSize: 10, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "notes")
+		key = layoutTableKeyName(tableType, row, "notes")
 		largeLayout[key] = &cell{
 			x: 30.5 + offsetX, y: 76 + offset, w: 38.5, h: height,
 			align: "LM", fontFamily: largeLayoutFont, fontSize: 8, fontWeight: "I",
 		}
-		key = keyName(tableType, row, "mass")
+		key = layoutTableKeyName(tableType, row, "mass")
 		largeLayout[key] = &cell{
 			x: 69 + offsetX, y: 76 + offset, w: 14.5, h: height,
 			align: "CM", fontFamily: largeLayoutFont, fontSize: 12, fontWeight: "B",
 		}
-		key = keyName(tableType, row, "status")
+		key = layoutTableKeyName(tableType, row, "status")
 		largeLayout[key] = &cell{
 			x: 84 + offsetX, y: 76 + offset, w: 19, h: height,
 			align: "LM", fontFamily: largeLayoutFont, fontSize: 8, fontWeight: "I",
