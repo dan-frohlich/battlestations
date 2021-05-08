@@ -6,7 +6,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 )
 
-func renderPDF(charData bsChar, useLargeTemplate bool) {
+func renderPDF(charData bsChar2, useLargeTemplate bool) {
 	orientation := "L"
 	sheetSize := "A5"
 	if useLargeTemplate {
@@ -33,7 +33,7 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 		smallLayoutInit()
 	}
 	DrawBorder := false
-	for k, v := range charData {
+	for k, v := range charData.toChar() {
 		if s, ok := v.(string); ok {
 			theLayout.draw(pdf, k, s, DrawBorder)
 		}
@@ -42,7 +42,7 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 		}
 	}
 	saAttr := []string{"name", "notes", "pool"}
-	sa := charData["special_abilities"]
+	sa := charData.toChar()["special_abilities"]
 	if sal, ok := sa.([]interface{}); ok {
 		for i, sai := range sal {
 			if saim, ok := sai.(map[interface{}]interface{}); ok {
@@ -61,7 +61,7 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 		}
 	}
 	eqAttr := []string{"name", "notes", "mass", "status"}
-	eq := charData["equipment"]
+	eq := charData.toChar()["equipment"]
 	if sal, ok := eq.([]interface{}); ok {
 		for i, eqi := range sal {
 			if eqim, ok := eqi.(map[interface{}]interface{}); ok {
@@ -78,7 +78,7 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 			}
 		}
 	}
-	name := fmt.Sprintf("%s_%v_%v.pdf", charData["name"], charData["rank"], charData["prestige"])
+	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
 	err := pdf.OutputFileAndClose(name)
 	check(err, "write pdf")
 }
