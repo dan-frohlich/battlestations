@@ -29,16 +29,16 @@ func main() {
 
 	fileName := *fileNamePtr
 	r, e := os.Open(fileName)
-	check(e, "load "+fileName)
+	checkFatal(e, "load "+fileName)
 
-	charData := loadCharFromReader(r)
+	charData, e := loadCharFromReader(r)
+	checkFatal(e, "load character")
 
-	useLargeTemplate := charData.isLarge()
-
-	renderPDF(charData, useLargeTemplate)
+	e = writePDFFile(charData)
+	checkFatal(e, "write pdf")
 }
 
-func check(err error, msg string) {
+func checkFatal(err error, msg string) {
 	if err != nil {
 		log.Fatal(msg, " ", err)
 	}

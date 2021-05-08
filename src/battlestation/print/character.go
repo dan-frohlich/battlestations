@@ -67,13 +67,17 @@ func (ch bsChar) toMap() charMap {
 	return t
 }
 
-func loadCharFromReader(r io.Reader) bsChar {
+func loadCharFromReader(r io.Reader) (bsChar, error) {
 	t := bsChar{}
 	data, e := ioutil.ReadAll(r)
-	check(e, "read char")
+	if e != nil {
+		return t, e
+	}
 	e = yaml.Unmarshal(data, &t)
-	check(e, "unmarshal  char")
-	return t
+	if e != nil {
+		return t, e
+	}
+	return t, nil
 }
 
 func (ch bsChar) isLarge() bool {

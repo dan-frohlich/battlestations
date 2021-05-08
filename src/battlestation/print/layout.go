@@ -51,7 +51,7 @@ func (c *cell) drawCell(pdf *gofpdf.Fpdf, text string, border bool) {
 	}
 }
 
-func loadBkgrndImg(pdf *gofpdf.Fpdf, useLargeBackground bool) {
+func loadBkgrndImg(pdf *gofpdf.Fpdf, useLargeBackground bool) error {
 
 	url := smallImageDataURL
 	name := smImgNm
@@ -62,6 +62,9 @@ func loadBkgrndImg(pdf *gofpdf.Fpdf, useLargeBackground bool) {
 		imgType = lgImgType
 	}
 	r, err := dataURLReader(url)
-	check(err, "loading background image " + name)
+	if err != nil {
+		return err
+	}
 	pdf.RegisterImageReader(name, imgType, r)
+	return nil
 }

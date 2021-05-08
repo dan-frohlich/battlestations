@@ -2,13 +2,26 @@ package main
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/jung-kurt/gofpdf"
 )
 
-func renderPDF(charData bsChar, useLargeTemplate bool) {
+func writePDFFile(charData bsChar) error {
+	pdf, _ := renderPDF(charData)
+	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
+	return pdf.OutputFileAndClose(name)
+}
+
+func writePDF(charData bsChar, output io.WriteCloser) error {
+	pdf, _ := renderPDF(charData)
+	return pdf.OutputAndClose(output)
+}
+
+func renderPDF(charData bsChar) (*gofpdf.Fpdf, error) {
 	orientation := "L"
 	sheetSize := "A5"
+	useLargeTemplate := charData.isLarge()
 	if useLargeTemplate {
 		orientation = "P"
 		sheetSize = "Letter"
@@ -16,7 +29,7 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 	pdf := gofpdf.New(orientation, "mm", sheetSize, baseDir)
 	//pdf.SetMargins(0, 0, 0)
 	pdf.SetAutoPageBreak(false, 0)
-	loadBkgrndImg(pdf, useLargeTemplate)
+	err := loadBkgrndImg(pdf, useLargeTemplate)
 	pdf.AddPage()
 	options := gofpdf.ImageOptions{
 		ImageType:             "png",
@@ -47,7 +60,6 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 			theLayout.draw(pdf, lk, v, DrawBorder)
 		}
 	}
-
 	eqAttr := []string{"name", "notes", "mass", "status"}
 	eql := charData.Equipment
 	for i, eq := range eql {
@@ -58,7 +70,5 @@ func renderPDF(charData bsChar, useLargeTemplate bool) {
 			theLayout.draw(pdf, lk, v, DrawBorder)
 		}
 	}
-	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
-	err := pdf.OutputFileAndClose(name)
-	check(err, "write pdf")
+	return pdf, err
 }
