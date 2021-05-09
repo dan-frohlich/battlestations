@@ -1,4 +1,4 @@
-package main
+package print
 
 import (
 	"github.com/jung-kurt/gofpdf"

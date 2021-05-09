@@ -1,4 +1,4 @@
-package main
+package print
 
 import (
 	"gopkg.in/yaml.v2"
@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 )
 
-type bsChar struct {
+type BSChar struct {
 	Name             string           `yaml:"name"`
 	Profession       string           `yaml:"profession"`
 	Athletics        string           `yaml:"athletics"`
@@ -60,15 +60,15 @@ func (eq Equipment) toMap() charMap {
 	return m
 }
 
-func (ch bsChar) toMap() charMap {
+func (ch BSChar) toMap() charMap {
 	x, _ := yaml.Marshal(ch)
 	t := charMap{}
 	yaml.Unmarshal(x, &t)
 	return t
 }
 
-func loadCharFromReader(r io.Reader) (bsChar, error) {
-	t := bsChar{}
+func LoadCharFromReader(r io.Reader) (BSChar, error) {
+	t := BSChar{}
 	data, e := ioutil.ReadAll(r)
 	if e != nil {
 		return t, e
@@ -80,7 +80,7 @@ func loadCharFromReader(r io.Reader) (bsChar, error) {
 	return t, nil
 }
 
-func (ch bsChar) isLarge() bool {
+func (ch BSChar) isLarge() bool {
 	if len(ch.SpecialAbilities) > 10 {
 		return true
 	}

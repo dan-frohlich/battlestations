@@ -1,21 +1,10 @@
 package main
 
 import (
+	"battlestation/print"
 	"flag"
 	"log"
 	"os"
-)
-
-const (
-	baseDir       = "./assets"
-	fontFNm       = "vt323"
-	fontNm        = "Roddenberry"
-	sampleCharFNm = "sample_char.yml"
-	smImgNm       = "background_small"
-	smImgType     = "png"
-	lgImgNm       = "background_large"
-	lgImgType     = "png"
-	smImgFNm      = "sheet_sm.png"
 )
 
 func main() {
@@ -31,10 +20,10 @@ func main() {
 	r, e := os.Open(fileName)
 	checkFatal(e, "load "+fileName)
 
-	charData, e := loadCharFromReader(r)
+	charData, e := print.LoadCharFromReader(r)
 	checkFatal(e, "load character")
 
-	e = writePDFFile(charData)
+	e = print.WritePDFFile(charData)
 	checkFatal(e, "write pdf")
 }
 

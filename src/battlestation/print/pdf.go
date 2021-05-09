@@ -1,4 +1,4 @@
-package main
+package print
 
 import (
 	"fmt"
@@ -7,18 +7,30 @@ import (
 	"github.com/jung-kurt/gofpdf"
 )
 
-func writePDFFile(charData bsChar) error {
+const (
+	baseDir       = "./assets"
+	fontFNm       = "vt323"
+	fontNm        = "Roddenberry"
+	sampleCharFNm = "sample_char.yml"
+	smImgNm       = "background_small"
+	smImgType     = "png"
+	lgImgNm       = "background_large"
+	lgImgType     = "png"
+	smImgFNm      = "sheet_sm.png"
+)
+
+func WritePDFFile(charData BSChar) error {
 	pdf, _ := renderPDF(charData)
 	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
 	return pdf.OutputFileAndClose(name)
 }
 
-func writePDF(charData bsChar, output io.WriteCloser) error {
+func WritePDF(charData BSChar, output io.WriteCloser) error {
 	pdf, _ := renderPDF(charData)
 	return pdf.OutputAndClose(output)
 }
 
-func renderPDF(charData bsChar) (*gofpdf.Fpdf, error) {
+func renderPDF(charData BSChar) (*gofpdf.Fpdf, error) {
 	orientation := "L"
 	sheetSize := "A5"
 	useLargeTemplate := charData.isLarge()
