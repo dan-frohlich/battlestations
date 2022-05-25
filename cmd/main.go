@@ -1,10 +1,11 @@
 package main
 
 import (
-	"battlestation/print"
 	"flag"
 	"log"
 	"os"
+
+	"github.com/dan-frohlich/battlestations/print"
 )
 
 func main() {
