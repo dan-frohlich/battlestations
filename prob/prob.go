@@ -19,7 +19,7 @@ func getResults(reroll int) {
 		"professional":       {},
 		"human-professional": {},
 	}
-	var results [][]int
+	// var results [][]int
 	count := 0
 	for _, a := range die {
 		for _, b := range die {
@@ -27,7 +27,7 @@ func getResults(reroll int) {
 				for _, d := range die {
 					count++
 					dice := []int{a, b, c, d}
-					results = append(results)
+					// results = append(results)
 					n, p, m := prob(dice, reroll)
 					histograms["non-professional"][n]++
 					histograms["professional"][p]++

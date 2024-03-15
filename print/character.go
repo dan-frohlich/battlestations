@@ -1,9 +1,9 @@
 package print
 
 import (
-	"gopkg.in/yaml.v2"
 	"io"
-	"io/ioutil"
+
+	"gopkg.in/yaml.v2"
 )
 
 type BSChar struct {
@@ -69,7 +69,7 @@ func (ch BSChar) toMap() charMap {
 
 func LoadCharFromReader(r io.Reader) (BSChar, error) {
 	t := BSChar{}
-	data, e := ioutil.ReadAll(r)
+	data, e := io.ReadAll(r)
 	if e != nil {
 		return t, e
 	}
