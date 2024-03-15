@@ -14,4 +14,3 @@ func dataURLReader(dataURLSrc string) (io.Reader, error) {
 	}
 	return bytes.NewReader(dataURL.Data), nil
 }
-

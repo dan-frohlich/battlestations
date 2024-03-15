@@ -1,6 +1,6 @@
 module github.com/dan-frohlich/battlestations
 
-go 1.17
+go 1.22
 
 require (
 	github.com/jung-kurt/gofpdf v1.16.2
