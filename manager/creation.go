@@ -126,6 +126,10 @@ func (cc *CharacterCreator) SelectProfession(v character.Profession) error {
 	return nil
 }
 
+func (cc *CharacterCreator) SetName(v string) {
+	cc.char.Name = v
+}
+
 func (cc *CharacterCreator) GetSkillArrays() []SkillArray {
 	return skillArrays
 }

@@ -4,10 +4,13 @@ import (
 	"testing"
 
 	"github.com/dan-frohlich/battlestations/character"
+	"gopkg.in/yaml.v2"
 )
 
 func TestCreateCharacter(t *testing.T) {
 	cc := NewCharacterCreator()
+
+	cc.SetName("TestCreateCharacter")
 
 	t.Logf("stage: %s", cc.stage)
 
@@ -98,4 +101,12 @@ func TestCreateCharacter(t *testing.T) {
 	}
 
 	t.Logf("char: %#v", cc.char)
+
+	bsc := convertForPrinting(cc.char)
+
+	var b []byte
+	b, err = yaml.Marshal(bsc)
+
+	t.Logf("\n%s", b)
+	// ioutil.WriteFile("test_char.yml", b, 0666)
 }
