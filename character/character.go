@@ -26,7 +26,7 @@ type Character struct {
 	Species          Species          `yaml:"species"`
 	Luck             Luck             `yaml:"luck"`
 	SpecialAbilities []SpecialAbility `yaml:"special_abilities"`
-	Equipment        []Equipment      `yaml:"equipment"`
+	Equipment        []Gear           `yaml:"equipment"`
 }
 
 type Credits int

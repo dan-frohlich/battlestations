@@ -1,16 +1,15 @@
 package character
 
-import "gopkg.in/yaml.v2"
-
 type SpecialAbility struct {
-	Name  string `yaml:"name"`
-	Notes string `yaml:"notes"`
-	Pool  string `yaml:"pool"`
+	Name  string
+	Notes string
+	Pool  PoolCalculator
 }
 
-func (sa SpecialAbility) toMap() charMap {
-	b, _ := yaml.Marshal(sa)
-	m := charMap{}
-	yaml.Unmarshal(b, m)
-	return m
+type PoolCalculator func(c Character) int
+
+var BosunSpecialAbility = SpecialAbility{
+	Name:  "Bosun",
+	Notes: "+1 Remote. BS reroll pool",
+	Pool:  func(c Character) int { return 5 },
 }
