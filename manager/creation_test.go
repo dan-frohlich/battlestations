@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"io/ioutil"
 	"testing"
 
 	"github.com/dan-frohlich/battlestations/character"
@@ -31,7 +32,7 @@ func TestCreateCharacter(t *testing.T) {
 
 	cc.PreviousStage()
 	t.Logf("stage: %s", cc.stage)
-	err = cc.SelectSpecies(character.CanosianSpecies)
+	err = cc.SelectSpecies(character.XeloxianSpecies)
 	t.Logf("stage: %s", cc.stage)
 
 	if err != nil {
@@ -100,6 +101,22 @@ func TestCreateCharacter(t *testing.T) {
 		return
 	}
 
+	err = cc.SelectSpecialAbility(character.BosunSpecialAbility)
+	t.Logf("stage: %s", cc.stage)
+
+	if err != nil {
+		t.Errorf("FAIL: SelectSpecialAbility, %s", err)
+		return
+	}
+
+	err = cc.SelectMedKit()
+	t.Logf("stage: %s", cc.stage)
+
+	if err != nil {
+		t.Errorf("FAIL: SelectSpecialAbility, %s", err)
+		return
+	}
+
 	t.Logf("char: %#v", cc.char)
 
 	bsc := convertForPrinting(cc.char)
@@ -108,5 +125,5 @@ func TestCreateCharacter(t *testing.T) {
 	b, err = yaml.Marshal(bsc)
 
 	t.Logf("\n%s", b)
-	// ioutil.WriteFile("test_char.yml", b, 0666)
+	ioutil.WriteFile("test_char.yml", b, 0666)
 }

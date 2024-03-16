@@ -17,7 +17,7 @@ func convertForPrinting(c character.Character) print.BSChar {
 		}
 		sa = fmt.Sprintf("%s%s%s: %s", sa, cr, ssa.Name, ssa.Description)
 	}
-	return print.BSChar{
+	bsc := print.BSChar{
 		Name:        c.Name,
 		Profession:  c.Profession.String(),
 		Athletics:   c.Athletics.String(),
@@ -39,4 +39,28 @@ func convertForPrinting(c character.Character) print.BSChar {
 		Hands:       c.Species.Hands.String(),
 		Luck:        fmt.Sprintf("%d", c.Rank.Int()+5),
 	}
+	for _, sa := range c.SpecialAbilities {
+		bsa := print.SpecialAbility{
+			Name:  sa.Name,
+			Notes: sa.Notes,
+			Pool:  fmt.Sprintf("%d", sa.Pool(c)),
+		}
+		bsc.SpecialAbilities = append(bsc.SpecialAbilities, bsa)
+	}
+
+	for _, eq := range c.Equipment {
+		eng := ""
+		if eq.Energy {
+			eng = " (e!)"
+		}
+		bseq := print.Equipment{
+			Name:   eq.Name + eng,
+			Notes:  eq.Notes,
+			Mass:   eq.Mass.String(),
+			Status: "",
+		}
+		bsc.Equipment = append(bsc.Equipment, bseq)
+	}
+
+	return bsc
 }

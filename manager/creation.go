@@ -15,6 +15,10 @@ import (
  * 5. Select a starting Special Ability
  * 6. Calculate Hit Points
  * 7. Get starting Equipment
+
+ *    A starting character will be given a blaster and their choice of a MedKit or ToolKit.
+ *    Characters that wear armor will also be issued armor.
+ *    A one time bonus of 500 credits is given to each starting character.
  */
 
 type SkillArray []character.SkillLevel
@@ -73,7 +77,8 @@ const (
 	professionStage
 	assignSkillStage
 	assignSpecialAbilityStage
-	selectEquipmentStage
+	selectMedKitOrToolkit
+	purchaseEquipmentStage
 )
 
 var stageNames = map[characterCreationStage]string{
@@ -82,7 +87,8 @@ var stageNames = map[characterCreationStage]string{
 	professionStage:           "choose profession",
 	assignSkillStage:          "assign skills",
 	assignSpecialAbilityStage: "choose special ability",
-	selectEquipmentStage:      "select gear",
+	selectMedKitOrToolkit:     "select kit",
+	purchaseEquipmentStage:    "purchase other gear",
 }
 
 func (ccs characterCreationStage) String() string {
@@ -105,12 +111,17 @@ func NewCharacterCreator() *CharacterCreator {
 }
 
 func (cc *CharacterCreator) PreviousStage() {
+	if cc.stage-1 == selectMedKitOrToolkit {
+		//undo the gear.
+		cc.char.Equipment = nil
+		cc.char.Credits = 0
+	}
 	cc.stage--
 }
 
 func (cc *CharacterCreator) SelectSpecies(v character.Species) error {
 	if cc.stage != speciesStage {
-		return fmt.Errorf("can't select species in stage %v", cc.stage)
+		return fmt.Errorf("can't select species in stage %s", cc.stage)
 	}
 	cc.char.Species = v
 	cc.stage++
@@ -119,7 +130,7 @@ func (cc *CharacterCreator) SelectSpecies(v character.Species) error {
 
 func (cc *CharacterCreator) SelectProfession(v character.Profession) error {
 	if cc.stage != professionStage {
-		return fmt.Errorf("can't select profession in stage %v", cc.stage)
+		return fmt.Errorf("can't select profession in stage %s", cc.stage)
 	}
 	cc.char.Profession = v
 	cc.stage++
@@ -136,7 +147,7 @@ func (cc *CharacterCreator) GetSkillArrays() []SkillArray {
 
 func (cc *CharacterCreator) SelectSkills(v SkillSelection) error {
 	if cc.stage != assignSkillStage {
-		return fmt.Errorf("can't select skills in stage %v", cc.stage)
+		return fmt.Errorf("can't select skills in stage %s", cc.stage)
 	}
 	if !v.toSkillArray().IsValid() {
 		return fmt.Errorf("invalid skill selection %v", v)
@@ -148,4 +159,43 @@ func (cc *CharacterCreator) SelectSkills(v SkillSelection) error {
 	cc.char.Science = v.Science
 	cc.stage++
 	return nil
+}
+
+func (cc *CharacterCreator) SelectSpecialAbility(v character.SpecialAbility) error {
+	if cc.stage != assignSpecialAbilityStage {
+		return fmt.Errorf("can't select special ability in stage %s", cc.stage)
+	}
+	cc.char.SpecialAbilities = []character.SpecialAbility{v}
+	cc.stage++
+	return nil
+}
+
+func (cc *CharacterCreator) SelectMedKit() error {
+	if cc.stage != selectMedKitOrToolkit {
+		return fmt.Errorf("can't select a kit in stage %s", cc.stage)
+	}
+	cc.aquireBasicGear(true)
+	return nil
+}
+
+func (cc *CharacterCreator) SelectToolKit() error {
+	if cc.stage != selectMedKitOrToolkit {
+		return fmt.Errorf("can't select a kit in stage %s", cc.stage)
+	}
+	cc.aquireBasicGear(false)
+	return nil
+}
+
+func (cc *CharacterCreator) aquireBasicGear(medkit bool) {
+	if cc.char.Species.Armor {
+		cc.char.Equipment = append(cc.char.Equipment, character.ArmorGear)
+	}
+	cc.char.Equipment = append(cc.char.Equipment, character.BlasterGear)
+	if medkit {
+		cc.char.Equipment = append(cc.char.Equipment, character.MedKitGear)
+	} else {
+		cc.char.Equipment = append(cc.char.Equipment, character.ToolkitGear)
+	}
+	cc.char.Credits = 500
+	cc.stage++
 }
