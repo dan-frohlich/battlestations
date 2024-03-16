@@ -1,6 +1,7 @@
 package character
 
 import (
+	"fmt"
 	"io"
 
 	"gopkg.in/yaml.v2"
@@ -34,6 +35,14 @@ type Luck int
 type Mass int
 type Prestige int
 type SkillLevel int
+
+func (v Credits) String() string    { return fmt.Sprintf("%d", v) }
+func (v Experience) String() string { return fmt.Sprintf("%d", v) }
+func (v Luck) String() string       { return fmt.Sprintf("%d", v) }
+func (v Mass) String() string       { return fmt.Sprintf("%d", v) }
+func (v Prestige) String() string   { return fmt.Sprintf("%d", v) }
+func (v SkillLevel) String() string { return fmt.Sprintf("%d", v) }
+func (v SkillLevel) Int() int       { return int(v) }
 
 type charMap map[string]string
 

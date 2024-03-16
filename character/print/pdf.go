@@ -3,6 +3,7 @@ package print
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/jung-kurt/gofpdf"
 )
@@ -19,9 +20,19 @@ const (
 	smImgFNm      = "sheet_sm.png"
 )
 
+func sanitizeForFS(s string) string {
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(
+				strings.ReplaceAll(s, "/", ""),
+				"|", ""),
+			" ", "_"),
+		"__", "_")
+}
+
 func WritePDFFile(charData BSChar) error {
 	pdf, _ := renderPDF(charData)
-	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
+	name := sanitizeForFS(fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige))
 	return pdf.OutputFileAndClose(name)
 }
 
