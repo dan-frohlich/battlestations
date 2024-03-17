@@ -1,11 +1,13 @@
 package manager
 
 import (
-	"io/ioutil"
+	"bufio"
+	"bytes"
+	"encoding/hex"
 	"testing"
 
 	"github.com/dan-frohlich/battlestations/character"
-	"gopkg.in/yaml.v2"
+	"github.com/dan-frohlich/battlestations/print"
 )
 
 func TestCreateCharacter(t *testing.T) {
@@ -121,9 +123,21 @@ func TestCreateCharacter(t *testing.T) {
 
 	bsc := convertForPrinting(cc.char)
 
-	var b []byte
-	b, err = yaml.Marshal(bsc)
+	err = print.WritePDFFile(bsc)
+	if err != nil {
+		t.Errorf("FAIL: WritePDFFile, %s", err)
+		return
+	}
+	var b bytes.Buffer
+	foo := bufio.NewWriter(&b)
 
-	t.Logf("\n%s", b)
-	ioutil.WriteFile("test_char.yml", b, 0666)
+	err = print.WritePDF(bsc, foo) //TODO which write closer?
+	if err != nil {
+		t.Errorf("FAIL: WritePDF, %s", err)
+		return
+	}
+
+	t.Logf("created pdf of %d bytes", len(b.Bytes()))
+	t.Log(hex.EncodeToString(b.Bytes())[:64], "...")
+
 }
