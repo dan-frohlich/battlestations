@@ -36,9 +36,12 @@ func WritePDFFile(charData BSChar) error {
 	return pdf.OutputFileAndClose(name)
 }
 
-func WritePDF(charData BSChar, output io.WriteCloser) error {
+func WritePDF(charData BSChar, output io.Writer) error {
 	pdf, _ := renderPDF(charData)
-	return pdf.OutputAndClose(output)
+	if oc, ok := output.(io.WriteCloser); ok {
+		return pdf.OutputAndClose(oc)
+	}
+	return pdf.Output(output)
 }
 
 func renderPDF(charData BSChar) (*gofpdf.Fpdf, error) {
