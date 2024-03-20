@@ -1,0 +1,45 @@
+div.information {
+    float: left;
+    border: thin solid ligt-grey;
+    margin: 5px;
+    padding: 5px;
+    width: 300px;
+    vertical-align: top;
+    text-align: right;
+  }
+  button {
+    margin: 2px;
+  }
+  
+  div.container {
+    float: left;
+    border: thin solid grey;
+    margin-left: 10px;
+    padding: 2px;
+    vertical-align: top;
+    text-align: right;
+    width: 200px;
+    text-align: center;
+  }
+  
+  div.container h3 {
+    border-bottom: thin solid grey;
+    margin: 5px;
+  }
+  
+  div.container button {
+    width: 150px;
+  }
+  
+  div.container button.paired {
+    color: white;
+    border-color: slategrey;
+    background-color: slategrey;
+  }
+  
+  div.container button.selected {
+    /*   color: white; */
+    border-color: slategrey;
+    /*   background-color: slategrey; */
+  }
+  
