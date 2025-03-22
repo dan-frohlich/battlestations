@@ -3,9 +3,17 @@ package model
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 type YN bool
+
+func (v YN) String() string {
+	if v {
+		return "y"
+	}
+	return "n"
+}
 
 const (
 	Y YN = true
@@ -57,36 +65,47 @@ type Gear struct {
 	Type   GearType
 }
 
-func IndexGear() {
-	gg := make([]Gear, 0, len(drugs)+len(cyberware)+len(explosives)+len(generalGear)+len(meleeWeapons)+len(rangedWeapons)+len(toxins))
-	gg = append(gg, cyberware...)
-	gg = append(gg, drugs...)
-	gg = append(gg, explosives...)
-	gg = append(gg, generalGear...)
-	gg = append(gg, meleeWeapons...)
-	gg = append(gg, rangedWeapons...)
-	gg = append(gg, toxins...)
-	gg = append(gg, slugAmmo...)
+var (
+	indexGearOnce     = &sync.Once{}
+	gearIndex         = make(map[string]Gear)
+	gearIndexedByType = make(map[GearType][]Gear)
+)
 
-	for _, g := range gg {
-		gearIndex[strings.TrimSpace(g.Name)] = g
+func indexGear() {
+	fn := func() {
+		gg := make([]Gear, 0, len(drugs)+len(cyberware)+len(explosives)+len(generalGear)+len(meleeWeapons)+len(rangedWeapons)+len(toxins))
+		gg = append(gg, cyberware...)
+		gg = append(gg, drugs...)
+		gg = append(gg, explosives...)
+		gg = append(gg, generalGear...)
+		gg = append(gg, meleeWeapons...)
+		gg = append(gg, rangedWeapons...)
+		gg = append(gg, slugAmmo...)
+		gg = append(gg, toxins...)
+
+		for _, g := range gg {
+			gearIndex[strings.TrimSpace(g.Name)] = g
+			gearIndexedByType[g.Type] = append(gearIndexedByType[g.Type], g)
+		}
 	}
+	indexGearOnce.Do(fn)
 }
 
-var gearIndex = make(map[string]Gear)
-
 func GetKits() []Gear {
+	indexGear()
 	return []Gear{
 		gearIndex["MedKit"],
 		gearIndex["ToolKit"],
 	}
 }
 
-func GetSlugAmmo() []Gear {
-	return slugAmmo
+func GetGetGearByType(gt GearType) []Gear {
+	indexGear()
+	return gearIndexedByType[gt]
 }
 
 func GearDetails(name string) string {
+	indexGear()
 	if g, ok := gearIndex[strings.TrimSpace(name)]; ok {
 		return g.Details()
 	}
@@ -94,6 +113,7 @@ func GearDetails(name string) string {
 }
 
 func IsType(name string, gt GearType) bool {
+	indexGear()
 	if g, ok := gearIndex[strings.TrimSpace(name)]; ok {
 		return g.Type == gt
 	}
@@ -102,13 +122,6 @@ func IsType(name string, gt GearType) bool {
 
 func (g Gear) Details() string {
 	return fmt.Sprintf("%s: [%s e? %s, %d cr, %d kg - %s]", g.Name, g.Type, g.Energy, g.Cost, g.Mass, g.Notes)
-}
-
-func (v YN) String() string {
-	if v {
-		return "y"
-	}
-	return "n"
 }
 
 var cyberware = []Gear{
