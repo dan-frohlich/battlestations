@@ -56,6 +56,17 @@ test/cover:
 	go test -v -race -buildvcs -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
+.PHONY: generate
+generate: 
+	go generate ./...
+
+.PHONY: lint
+lint: 
+	golangci-lint run
+
+.PHONY: check
+check: generate tidy lint test
+
 ## build: build the application
 .PHONY: build
 build:

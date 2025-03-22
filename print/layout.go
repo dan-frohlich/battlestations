@@ -1,8 +1,9 @@
 package print
 
 import (
-	"github.com/jung-kurt/gofpdf"
 	"log"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
 type layoutKey string
@@ -12,7 +13,7 @@ type layout map[layoutKey]*cell
 type cell struct {
 	x, y, w, h   float64
 	align        string
-	border       string
+	border       string //nolint:unused
 	fontFamily   string
 	fontSize     float64
 	fontWeight   string

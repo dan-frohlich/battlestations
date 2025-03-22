@@ -7,6 +7,7 @@ import (
 	"runtime"
 )
 
+//nolint:unused
 func openBrowser(url string) {
 	var err error
 

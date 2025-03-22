@@ -42,7 +42,7 @@ type SpecialAbility struct {
 func (sa SpecialAbility) toMap() charMap {
 	b, _ := yaml.Marshal(sa)
 	m := charMap{}
-	yaml.Unmarshal(b, m)
+	_ = yaml.Unmarshal(b, m)
 	return m
 }
 
@@ -56,14 +56,14 @@ type Equipment struct {
 func (eq Equipment) toMap() charMap {
 	b, _ := yaml.Marshal(eq)
 	m := charMap{}
-	yaml.Unmarshal(b, m)
+	_ = yaml.Unmarshal(b, m)
 	return m
 }
 
 func (ch BSChar) toMap() charMap {
 	x, _ := yaml.Marshal(ch)
 	t := charMap{}
-	yaml.Unmarshal(x, &t)
+	_ = yaml.Unmarshal(x, &t)
 	return t
 }
 
