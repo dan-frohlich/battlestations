@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	baseDir       = "./assets"
+	// baseDir       = "./assets"
 	fontFNm       = "vt323"
 	fontNm        = "Roddenberry"
 	sampleCharFNm = "sample_char.yml"
@@ -38,7 +38,7 @@ func renderPDF(charData BSChar) (*gofpdf.Fpdf, error) {
 		orientation = "P"
 		sheetSize = "Letter"
 	}
-	pdf := gofpdf.New(orientation, "mm", sheetSize, baseDir)
+	pdf := gofpdf.New(orientation, "mm", sheetSize, "")
 	//pdf.SetMargins(0, 0, 0)
 	pdf.SetAutoPageBreak(false, 0)
 	err := loadBkgrndImg(pdf, useLargeTemplate)

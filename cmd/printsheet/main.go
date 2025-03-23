@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/dan-frohlich/battlestations/print"
+	"github.com/dan-frohlich/battlestations/character/print"
 )
 
 func main() {
