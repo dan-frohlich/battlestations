@@ -46,7 +46,8 @@ func (gt GearType) String() string {
 }
 
 const (
-	CyberwareGearType = iota
+	UnknownGearType = iota
+	CyberwareGearType
 	DrugGearType
 	ExplosiveGearType
 	GeneralGearType
@@ -57,18 +58,25 @@ const (
 )
 
 type GearRef struct {
-	Name     string `yaml:"name"`
-	Equiped  bool   `yaml:"equiped"`
-	Upgraded bool   `yaml:"upgraded"`
+	Cost        int      `yaml:"cost"`
+	Energy      YN       `yaml:"energy"`
+	Mass        int      `yaml:"mass"`
+	Name        string   `yaml:"name"`
+	Notes       string   `yaml:"notes"`
+	OutputNotes string   `yaml:"print_notes"`
+	Type        GearType `yaml:"type"`
+	Equiped     bool     `yaml:"equiped"`
+	Upgraded    bool     `yaml:"upgraded"`
 }
 
 type Gear struct {
-	Cost   int      `yaml:"cost"`
-	Energy YN       `yaml:"energy"`
-	Mass   int      `yaml:"mass"`
-	Name   string   `yaml:"name"`
-	Notes  string   `yaml:"notes"`
-	Type   GearType `yaml:"type"`
+	Cost        int      `yaml:"cost"`
+	Energy      YN       `yaml:"energy"`
+	Mass        int      `yaml:"mass"`
+	Name        string   `yaml:"name"`
+	Notes       string   `yaml:"notes"`
+	OutputNotes string   `yaml:"print_notes"`
+	Type        GearType `yaml:"type"`
 }
 
 var (
@@ -187,7 +195,7 @@ var generalGear = []Gear{
 	{Name: "MagBoots", Cost: 150, Mass: 4, Energy: Y, Notes: "-1 movement when active but allows movement along hull without other penalties.", Type: GeneralGearType},
 	{Name: "MedKit", Cost: 250, Mass: 5, Energy: Y, Notes: "Science Skill check vs. 11 to heal 1 die of damage", Type: GeneralGearType},
 	{Name: "Scope", Cost: 25, Mass: 1, Energy: Y, Notes: "Consider distance to target as half.", Type: GeneralGearType},
-	{Name: "ToolKit", Cost: 100, Mass: 5, Energy: Y, Notes: "- 1 difficulty on Engineering checks to upgrade or repair.", Type: GeneralGearType},
+	{Name: "ToolKit", Cost: 100, Mass: 5, Energy: Y, Notes: "-1 difficulty on Engineering checks to upgrade or repair.", Type: GeneralGearType},
 }
 
 var meleeWeapons = []Gear{

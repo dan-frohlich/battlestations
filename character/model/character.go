@@ -45,8 +45,7 @@ type Character struct {
 	Luck             int                `yaml:"luck"`
 	Species          Species            `yaml:"species"`
 	SpecialAbilities []SpecialAbility   `yaml:"special_abilities"`
-	Gear             []Gear             `yaml:"gear"`
-	GearRef          []GearRef          `yaml:"gear_status"`
+	Gear             []GearRef          `yaml:"gear"`
 }
 
 func MustLoadCharacter(data []byte) Character {
@@ -64,9 +63,44 @@ func LoadCharacter(data []byte) (c Character, err error) {
 	return c, err
 }
 
+// ItemNotFoundString an item name ending with this string was not found in the BattleStations DB
+const ItemNotFoundString = "⁺"
+
 func hydrate(c Character) Character {
+	if s, ok := GetSpecies(c.Species.Name); ok {
+		c.Species.Armor = s.Armor
+		c.Species.BaseHT = s.BaseHT
+		c.Species.TN = s.TN
+		c.Species.Hands = s.Hands
+		c.Species.Move = s.Move
+		//index species abilities from DB
+		m := make(map[string]SpeciesAbility)
+		for _, sa := range s.Abilities {
+			m[sa.Name] = sa
+		}
+		if len(c.Species.Abilities) == 0 {
+			//if we dont have any, copy from Battlestations DB
+			c.Species.Abilities = s.Abilities
+		} else {
+			//if we do have abilities, hydrate them from Battlestations DB
+			for i := range c.Species.Abilities {
+				if sa, ok := m[c.Species.Abilities[i].Name]; ok {
+					c.Species.Abilities[i].Description = sa.Description
+					if c.Species.Abilities[i].OutputDescription == "" { // if not overridden in char save
+						c.Species.Abilities[i].OutputDescription = sa.OutputDescription
+					}
+				}
+			}
+		}
+	} else {
+		c.Species.Name += ItemNotFoundString
+	}
 	for i := range c.SpecialAbilities {
 		sa := GetAbility(c.SpecialAbilities[i].Name)
+		if sa.Name == "" {
+			c.SpecialAbilities[i].Name += ItemNotFoundString
+			continue
+		}
 		c.SpecialAbilities[i].Summary = sa.Summary
 		c.SpecialAbilities[i].FullDescription = sa.FullDescription
 		if c.SpecialAbilities[i].OutputSummary != "" { // if not overridden in char save
@@ -74,6 +108,25 @@ func hydrate(c Character) Character {
 		}
 		c.SpecialAbilities[i].Types = sa.Types
 		c.SpecialAbilities[i].PoolFunc = sa.PoolFunc
+	}
+
+	for i := range c.Gear {
+		g := GetGear(c.Gear[i].Name)
+		if g.Name == "" {
+			c.Gear[i].Name += ItemNotFoundString
+			continue
+		}
+		c.Gear[i].Notes = g.Notes
+		c.Gear[i].Cost = g.Cost
+		c.Gear[i].Energy = g.Energy
+		if !c.Gear[i].Upgraded && c.Gear[i].Mass == 0 {
+			c.Gear[i].Mass = g.Mass
+		}
+		c.Gear[i].Notes = g.Notes
+		if c.Gear[i].OutputNotes == "" { // if not overridden in char save
+			c.Gear[i].OutputNotes = g.OutputNotes
+		}
+		c.Gear[i].Type = g.Type
 	}
 	return c
 }

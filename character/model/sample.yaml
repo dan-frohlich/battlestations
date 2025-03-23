@@ -1,17 +1,10 @@
-name: Pwer Pwer
+name: A Sample Character
+player: My Real Name
 profession: engineer
 species: 
   name: "Zoallan"
-  base_health: 4
-  target: 9
-  hands: 3
-  move: 7
-  armor: false
-  species_abilities:
-    - name: "Carapace"
-      description: "-2 points of damage from all sources."
 
-prestige: 300
+prestige: 100
 experience: 300
 credits: 300
 
@@ -28,27 +21,28 @@ luck: 6
 hands: 3
 
 hp: 6
-rank: 1
+rank: 2
 carry: 10
 
 special_abilities:
   - name: Forethinker
+  - name: "Blink"
+    summary:       "Origins '21: teleport to 2d6x2d6 or 1d6 Dam"
+    print_summary: "telept -> 2d6x2d6 or 1d6 Dam"
 
 gear:
   - name: Nerve Disruptor
     notes: 2d6-4, if dmg, drop
     mass: 5
-    status: .
-  - name: Toolkit
+    energy: true
+    equiped: true
+  - name: ToolKit
     notes: -1 to upgrade or repair.
     mass: 5
-    status: .
-
-gear_status:
-  - name: Nerve Disruptor
     equiped: true
-    upgraded: false
-  - name: Toolkit
+  - name: Decoder Ring
+    notes: Gift from Jeff S. +1 to hacking
+    mass: 0
+    energy: true
     equiped: true
-    upgraded: false
-
+    upgraded: true

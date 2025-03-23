@@ -17,7 +17,7 @@ func (m *Manager) Print() {
 }
 
 func char2Print(c model.Character) (pc print.BSChar) {
-	pc.Ability = c.Species.Ability.String()
+	pc.Ability = c.Species.Abilities.String()
 	pc.Athletics = c.Athletics.String()
 	pc.BaseHP = int2Str(c.Species.BaseHT)
 	pc.Carry = int2Str(c.Carry)

@@ -2,6 +2,7 @@ package model
 
 import (
 	_ "embed"
+	"encoding/json"
 	"testing"
 
 	"gopkg.in/yaml.v2"
@@ -15,11 +16,17 @@ func TestLoadCharacter(t *testing.T) {
 	var c Character
 	c, e := LoadCharacter(sampleChar)
 	if e != nil {
-		t.Errorf("error unmarcshaling character: %s", e)
+		t.Errorf("error unmarshaling character: %s", e)
 		return
 	}
-	t.Logf("%#v", c)
-	if len(c.SpecialAbilities) != 1 {
+	// b, e := json.MarshalIndent(c, "", " ")
+	b, e := json.Marshal(c)
+	if e != nil {
+		t.Errorf("error json marshaling character: %s", e)
+		return
+	}
+	t.Logf("%s", string(b))
+	if len(c.SpecialAbilities) != 2 {
 		t.Errorf("error loading special abilities: %d", len(c.SpecialAbilities))
 		return
 	}
@@ -28,6 +35,12 @@ func TestLoadCharacter(t *testing.T) {
 	}
 	if c.SpecialAbilities[0].Summary == "" {
 		t.Errorf("error loading Forethinker.Summary: %s", c.SpecialAbilities[0].Summary)
+	}
+	if c.SpecialAbilities[1].Name != "Blink"+ItemNotFoundString {
+		t.Errorf("error loading Blink: %s", c.SpecialAbilities[1].Name)
+	}
+	if c.SpecialAbilities[1].Summary == "" {
+		t.Errorf("error loading Blink.Summary: %s", c.SpecialAbilities[1].Summary)
 	}
 }
 

@@ -37,12 +37,12 @@ const (
 )
 
 type SpecialAbility struct {
-	Name            string
-	Summary         string
-	OutputSummary   string
-	FullDescription string
-	Types           []AbilityType
-	PoolFunc        func(c Character) int
+	Name            string                `yaml:"name"`
+	Summary         string                `yaml:"summary"`
+	OutputSummary   string                `yaml:"print_summary"`
+	FullDescription string                `yaml:"description"`
+	Types           []AbilityType         `yaml:"types"`
+	PoolFunc        func(c Character) int `json:"-"`
 }
 
 var (
