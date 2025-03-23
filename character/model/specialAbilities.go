@@ -37,12 +37,13 @@ const (
 )
 
 type SpecialAbility struct {
-	Name            string                `yaml:"name"`
-	Summary         string                `yaml:"summary"`
-	OutputSummary   string                `yaml:"print_summary"`
-	FullDescription string                `yaml:"description"`
-	Types           []AbilityType         `yaml:"types"`
-	PoolFunc        func(c Character) int `json:"-"`
+	Name            string        `yaml:"name"`
+	Summary         string        `yaml:"summary"`
+	OutputSummary   string        `yaml:"print_summary"`
+	FullDescription string        `yaml:"description"`
+	Types           []AbilityType `yaml:"types"`
+	PoolCode        PoolCode      `yaml:"pool"`
+	// PoolFunc        func(c Character) int `json:"-"`
 }
 
 var (
@@ -115,7 +116,7 @@ var abilities = []SpecialAbility{
 	{Name: "First Mate", Summary: "May let others spend your luck as if it were their own. Reroll on all attempts to assist. +1 Luck", Types: []AbilityType{}},
 	{Name: "Florentine Fighter", Summary: "Reduce your penalty to attack with two personal weapons by 3", Types: []AbilityType{}},
 	{Name: "Foresighted", Summary: "Start retroactively on overwatch. You can go generically on overwatch", Types: []AbilityType{}},
-	{Name: "Forethinker", Summary: "Roll your skill check before declaring an action", Types: []AbilityType{}},
+	{Name: "Forethinker", Summary: "Roll your skill check before declaring an action", Types: []AbilityType{}, OutputSummary: "Roll skill b4 action choice"},
 	{Name: "Fortunate", Summary: "You may spend 1 Luck to nudge a luckable die upwards by one instead of rerolling", Types: []AbilityType{}},
 	{Name: "Fume-Runner", Summary: "Take actions that require power without it (causing 1 point of hull damage)", Types: []AbilityType{}},
 	{Name: "Ghost in The Machine", Summary: "Operate a Battlestation from anywhere aboard ship at no remote penalty. Pool of Engineering + Psionics", Types: []AbilityType{}},

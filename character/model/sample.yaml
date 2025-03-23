@@ -4,11 +4,12 @@ profession: engineer
 species: 
   name: "Zoallan"
 
+starting_skill_set: 41110
 prestige: 100
-experience: 300
+experience: 100
 credits: 300
 
-athletics: 1
+athletics: 2
 combat: 1
 engineering: 4
 pilot: 0
@@ -29,20 +30,22 @@ special_abilities:
   - name: "Blink"
     summary:       "Origins '21: teleport to 2d6x2d6 or 1d6 Dam"
     print_summary: "telept -> 2d6x2d6 or 1d6 Dam"
+    pool: psionics
 
 gear:
   - name: Nerve Disruptor
-    notes: 2d6-4, if dmg, drop
-    mass: 5
-    energy: true
+    print_notes: 2d6-4, if dmg, drop
     equiped: true
   - name: ToolKit
-    notes: -1 to upgrade or repair.
-    mass: 5
+    print_notes: -1 to upgrade or repair.
     equiped: true
   - name: Decoder Ring
-    notes: Gift from Jeff S. +1 to hacking
+    print_notes: Gift from Jeff S. +1 to hacking
     mass: 0
     energy: true
     equiped: true
+    upgraded: true
+  - name: Frag Grenade
+    equiped: false
+  - name: MagBoots
     upgraded: true

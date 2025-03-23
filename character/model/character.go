@@ -24,6 +24,7 @@ func (sl OptionalSkillLevel) String() string {
 type Character struct {
 	Name             string             `yaml:"name"`
 	Player           string             `yaml:"player"`
+	StartingSkillSet string             `yaml:"starting_skill_set"`
 	Profession       string             `yaml:"profession"`
 	Athletics        SkillLevel         `yaml:"athletics"`
 	Combat           SkillLevel         `yaml:"combat"`
@@ -33,19 +34,28 @@ type Character struct {
 	Diplomacy        OptionalSkillLevel `yaml:"diplomacy,omitempty"`
 	Psionics         OptionalSkillLevel `yaml:"psionics,omitempty"`
 	Sanity           OptionalSkillLevel `yaml:"sanity,omitempty"`
-	HP               int                `yaml:"hp"`
-	Carry            int                `yaml:"carry"`
-	Rank             int                `yaml:"rank"`
+	Rank             Rank               `yaml:"rank"`
 	Prestige         int                `yaml:"prestige"`
 	Experience       int                `yaml:"experience"`
 	Credits          int                `yaml:"credits"`
 	Move             int                `yaml:"move"`
 	Target           int                `yaml:"target"`
 	Hands            int                `yaml:"hands"`
-	Luck             int                `yaml:"luck"`
 	Species          Species            `yaml:"species"`
 	SpecialAbilities []SpecialAbility   `yaml:"special_abilities"`
 	Gear             []GearRef          `yaml:"gear"`
+}
+
+func (c Character) HP() int {
+	return int(c.Athletics) + int(c.Rank) + c.Species.BaseHT
+}
+
+func (c Character) Luck() int {
+	return int(c.Rank) + 5
+}
+
+func (c Character) Carry() int {
+	return int(c.Athletics) * 10
 }
 
 func MustLoadCharacter(data []byte) Character {
@@ -64,9 +74,11 @@ func LoadCharacter(data []byte) (c Character, err error) {
 }
 
 // ItemNotFoundString an item name ending with this string was not found in the BattleStations DB
-const ItemNotFoundString = "⁺"
+const ItemNotFoundString = "*"
 
 func hydrate(c Character) Character {
+	c.Name += ItemNotFoundString //TODO remove after debugging
+
 	if s, ok := GetSpecies(c.Species.Name); ok {
 		c.Species.Armor = s.Armor
 		c.Species.BaseHT = s.BaseHT
@@ -103,11 +115,11 @@ func hydrate(c Character) Character {
 		}
 		c.SpecialAbilities[i].Summary = sa.Summary
 		c.SpecialAbilities[i].FullDescription = sa.FullDescription
-		if c.SpecialAbilities[i].OutputSummary != "" { // if not overridden in char save
+		if c.SpecialAbilities[i].OutputSummary == "" { // if not overridden in char save
 			c.SpecialAbilities[i].OutputSummary = sa.OutputSummary
 		}
 		c.SpecialAbilities[i].Types = sa.Types
-		c.SpecialAbilities[i].PoolFunc = sa.PoolFunc
+		// c.SpecialAbilities[i].PoolFunc = sa.PoolFunc
 	}
 
 	for i := range c.Gear {
