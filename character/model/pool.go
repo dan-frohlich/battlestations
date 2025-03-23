@@ -4,42 +4,49 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type PoolCode string
 
-func (pc PoolCode) Calculate(c Character) int {
-	i, e := strconv.Atoi(string(pc))
+func (pc PoolCode) Calculate(c Character) (i int, e error) {
+	i, e = strconv.Atoi(string(pc))
 	if e == nil { //this is an int
-		return i
+		return i, e
 	}
 	switch pc {
 	case "athletics":
-		return int(c.Athletics)
+		return int(c.Athletics), nil
 	case "combat":
-		return int(c.Combat)
+		return int(c.Combat), nil
 	case "diplomacy":
-		return int(c.Diplomacy)
+		return int(c.Diplomacy), nil
 	case "engineering":
-		return int(c.Engineering)
+		return int(c.Engineering), nil
 	case "pilot":
-		return int(c.Pilot)
+		return int(c.Pilot), nil
 	case "psionics":
-		return int(c.Psionics)
+		return int(c.Psionics), nil
 	case "science":
-		return int(c.Science)
+		return int(c.Science), nil
 	case "sanity":
-		return int(c.Sanity)
+		return int(c.Sanity), nil
 	default:
 		//tokenize the code, then execute the instructions
 		var (
 			tokens []token
 			ast    *node
 		)
-		tokens, _ = tokenizer(pc)
-		ast, _ = lexer(tokens)
+		tokens, e = tokenizer(pc)
+		if e != nil { //failed to tokenize
+			return i, e
+		}
+		ast, e = lexer(tokens)
+		if e != nil { //failed to lex
+			return i, e
+		}
 		v := ast.eval(c)
-		return v
+		return v, nil
 	}
 }
 
@@ -47,7 +54,7 @@ type token string
 
 func (t token) isOperator() bool {
 	switch t {
-	case "x", "+", "*":
+	case "x", "+", "*", "_":
 		return true
 	}
 	return false
@@ -107,14 +114,14 @@ const (
 
 func checkToken(runes []rune) (token, bool) {
 	switch string(runes) {
-	case "x", "*", "+", athToken, comToken, dipToken, engToken, pilToken, psiToken, sciToken, sanToken, lukToken, rnkToken:
+	case "x", "*", "+", "_", athToken, comToken, dipToken, engToken, pilToken, psiToken, sciToken, sanToken, lukToken, rnkToken:
 		return token(runes), true
 	}
 	return token(""), false
 }
 
 func tokenizer(pc PoolCode) (tokens []token, err error) {
-	runes := []rune(pc)
+	runes := []rune(strings.ToLower(string(pc)))
 	max := len(runes)
 	for i := 0; i < max; i++ {
 
@@ -142,7 +149,7 @@ func tokenizer(pc PoolCode) (tokens []token, err error) {
 			tokens = append(tokens, token(runes[i:j]))
 			i = j - 1
 
-		case 'x', '*', '+':
+		case 'x', '*', '+', '_':
 			tokens = append(tokens, token(runes[i]))
 		case 'a':
 			if len(runes[i:]) >= len(athToken) {
@@ -236,12 +243,24 @@ func (ast *node) eval(c Character) int {
 			return n.left.eval(c) + n.right.eval(c)
 		case "x", "*":
 			return n.left.eval(c) * n.right.eval(c)
+		case "_":
+			return min(n.left.eval(c), n.right.eval(c))
 		default:
 			return -1
 		}
 	default:
 		return n.raw.evalAsCharacterReference(c)
 	}
+}
+
+func min(arg int, args ...int) int {
+	m := arg
+	for _, a := range args {
+		if a < m {
+			m = a
+		}
+	}
+	return m
 }
 
 func lexer(tokens []token) (ast *node, err error) {

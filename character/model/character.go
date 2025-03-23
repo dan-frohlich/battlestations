@@ -119,7 +119,7 @@ func hydrate(c Character) Character {
 			c.SpecialAbilities[i].OutputSummary = sa.OutputSummary
 		}
 		c.SpecialAbilities[i].Types = sa.Types
-		c.SpecialAbilities[i].PoolCode = sa.PoolCode
+		c.SpecialAbilities[i].Pool = sa.Pool
 	}
 
 	for i := range c.Gear {

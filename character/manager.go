@@ -58,8 +58,9 @@ func char2Print(c model.Character) (pc print.BSChar) {
 		// if sa.PoolFunc != nil {
 		// 	pool = int2Str(sa.PoolFunc(c))
 		// }
-		if sa.PoolCode != "" {
-			pool = int2Str(sa.PoolCode.Calculate(c))
+		if sa.Pool != "" {
+			i, _ := sa.Pool.Calculate(c)
+			pool = int2Str(i)
 		} else {
 			pool = "-"
 		}

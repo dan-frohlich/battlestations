@@ -15,6 +15,9 @@ var sampleChar01 []byte
 //go:embed sample02.yaml
 var sampleChar02 []byte
 
+//go:embed sample03.yaml
+var sampleChar03 []byte
+
 func TestLoadCharacter(t *testing.T) {
 
 	type tCase struct {
@@ -36,6 +39,12 @@ func TestLoadCharacter(t *testing.T) {
 			data:            sampleChar02,
 			expectedSACount: 2,
 			expectedSANames: []string{"Forethinker", "Mr. Fixit"},
+		},
+		{
+			id:              "tc03",
+			data:            sampleChar03,
+			expectedSACount: 3,
+			expectedSANames: []string{"Forethinker", "Mr. Fixit", "Resourceful"},
 		},
 	}
 

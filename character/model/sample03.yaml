@@ -1,20 +1,19 @@
-name: tc01 Sample Character
+name: tc03 Sample Character
 player: My Real Name
-profession: engineer
+profession: scientist
 species: 
-  name: "Zoallan"
+  name: "Human"
 
 starting_skill_set: 41110
 prestige: 100
-experience: 0
-credits: 300
+experience: 200
+credits: 600
 
 athletics: 2
 combat: 1
 engineering: 4
 pilot: 0
-science: 1
-psionics: 1
+science: 2
 
 move: 7
 base_hp: 4
@@ -23,22 +22,19 @@ luck: 6
 hands: 3
 
 hp: 6
-rank: 2
+rank: 3
 carry: 10
 
 special_abilities:
   - name: Forethinker
-  - name: Blink
-    summary:       "Origins '21: teleport to 2d6x2d6 or 1d6 Dam"
-    print_summary: "telept -> 2d6x2d6 or 1d6 Dam"
-    pool: psionics
+  - name: Mr. Fixit
+  - name: Resourceful
 
 gear:
   - name: Nerve Disruptor
     print_notes: 2d6-4, if dmg, drop
     equiped: true
-  - name: ToolKit
-    print_notes: -1 to upgrade or repair.
+  - name: MedKit
     equiped: true
   - name: Decoder Ring
     print_notes: Gift from Jeff S. +1 to hacking
