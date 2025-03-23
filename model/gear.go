@@ -104,6 +104,14 @@ func GetGetGearByType(gt GearType) []Gear {
 	return gearIndexedByType[gt]
 }
 
+func GetGear(name string) Gear {
+	indexGear()
+	if g, ok := gearIndex[strings.TrimSpace(name)]; ok {
+		return g
+	}
+	return Gear{}
+}
+
 func GearDetails(name string) string {
 	indexGear()
 	if g, ok := gearIndex[strings.TrimSpace(name)]; ok {
