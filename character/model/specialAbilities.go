@@ -142,7 +142,7 @@ var abilities = []SpecialAbility{
 	{Name: "Mind Mender", Summary: "Absrob others damage onto yourself. Pool of Athletics + Psionics", Types: []AbilityType{}},
 	{Name: "Miracle Worker", Summary: "Choose a die roll instead of rolling it once per campaign turn. Also +1 Luck", Types: []AbilityType{}},
 	{Name: "Mobile", Summary: "+2 Move. Ignore OOC for movement. Reroll on any attempt to move extra squares", Types: []AbilityType{}},
-	{Name: "Mr. Fixit", Summary: "Pool to reroll repairs and upgrades or repair as a free action. Pool of Engineering + Science", Types: []AbilityType{}},
+	{Name: "Mr. Fixit", Summary: "Pool to reroll repairs and upgrades or repair as a free action. Pool of Engineering + Science", PoolCode: "engineering + science", Types: []AbilityType{}},
 	{Name: "Multi-Shot Expert", Summary: "Fire multibarrel twice as a single action. Reconfigure cannons as an automatic action", Types: []AbilityType{}},
 	{Name: "Nimble", Summary: "Take bonus actions at +3 difficulty max once per phase. Pool of Athletics", Types: []AbilityType{}},
 	{Name: "Noble", Summary: "You get an allowance. Use others luck. Difficulty to assist you is 1 easier and 1 more effective", Types: []AbilityType{}},

@@ -1,0 +1,51 @@
+name: tc01 Sample Character
+player: My Real Name
+profession: engineer
+species: 
+  name: "Zoallan"
+
+starting_skill_set: 41110
+prestige: 100
+experience: 100
+credits: 300
+
+athletics: 2
+combat: 1
+engineering: 4
+pilot: 0
+science: 1
+
+move: 7
+base_hp: 4
+target: 9
+luck: 6
+hands: 3
+
+hp: 6
+rank: 2
+carry: 10
+
+special_abilities:
+  - name: Forethinker
+  - name: Blink
+    summary:       "Origins '21: teleport to 2d6x2d6 or 1d6 Dam"
+    print_summary: "telept -> 2d6x2d6 or 1d6 Dam"
+    pool: psionics
+
+gear:
+  - name: Nerve Disruptor
+    print_notes: 2d6-4, if dmg, drop
+    equiped: true
+  - name: ToolKit
+    print_notes: -1 to upgrade or repair.
+    equiped: true
+  - name: Decoder Ring
+    print_notes: Gift from Jeff S. +1 to hacking
+    mass: 0
+    energy: true
+    equiped: true
+    upgraded: true
+  - name: Frag Grenade
+    equiped: false
+  - name: MagBoots
+    upgraded: true

@@ -32,11 +32,65 @@ func (pc PoolCode) Calculate(c Character) int {
 		return int(c.Sanity)
 	default:
 		//tokenize the code, then execute the instructions
+		var (
+			tokens []token
+			ast    *node
+		)
+		tokens, _ = tokenizer(pc)
+		ast, _ = lexer(tokens)
+		v := ast.eval(c)
+		return v
 	}
-	return 0
 }
 
 type token string
+
+func (t token) isOperator() bool {
+	switch t {
+	case "x", "+", "*":
+		return true
+	}
+	return false
+}
+
+var isNumericRegexp = regexp.MustCompile("[0-9][0-9]*")
+
+func (t token) isNumeric() bool {
+	return isNumericRegexp.Match([]byte(t))
+}
+
+func (t token) evalAsCharacterReference(c Character) int {
+	switch t {
+	case "athletics":
+		return int(c.Athletics)
+	case "combat":
+		return int(c.Combat)
+	case "diplomacy":
+		return int(c.Diplomacy)
+	case "engineering":
+		return int(c.Engineering)
+	case "pilot":
+		return int(c.Pilot)
+	case "psionics":
+		return int(c.Psionics)
+	case "science":
+		return int(c.Science)
+	case "sanity":
+		return int(c.Sanity)
+	}
+	return -1
+}
+
+func (t token) asNumeric() int {
+	if !t.isNumeric() {
+		return -1
+	}
+	i, e := strconv.Atoi(string(t))
+	if e != nil {
+		return -1
+	}
+	return i
+}
 
 const (
 	athToken = "athletics"
@@ -73,7 +127,6 @@ func tokenizer(pc PoolCode) (tokens []token, err error) {
 			for _, r := range string(numRunes) {
 				runeSet[r] = struct{}{}
 			}
-			reg := regexp.MustCompile("[0-9][0-9]*")
 			_, isNum := runeSet[runes[j]]
 			for isNum {
 				j++
@@ -82,7 +135,7 @@ func tokenizer(pc PoolCode) (tokens []token, err error) {
 				}
 				_, isNum = runeSet[runes[j]]
 			}
-			if !reg.Match([]byte(string(runes[i:j]))) {
+			if !isNumericRegexp.Match([]byte(string(runes[i:j]))) {
 				return tokens, fmt.Errorf("expected %s to be a number", string(runes[i:j]))
 			}
 
@@ -163,4 +216,77 @@ func tokenizer(pc PoolCode) (tokens []token, err error) {
 		}
 	}
 	return tokens, err
+}
+
+type node struct {
+	raw   token
+	value int
+	left  *node
+	right *node
+}
+
+func (ast *node) eval(c Character) int {
+	n := ast
+	switch {
+	case n.raw.isNumeric():
+		return n.value
+	case n.raw.isOperator():
+		switch n.raw {
+		case "+":
+			return n.left.eval(c) + n.right.eval(c)
+		case "x", "*":
+			return n.left.eval(c) * n.right.eval(c)
+		default:
+			return -1
+		}
+	default:
+		return n.raw.evalAsCharacterReference(c)
+	}
+}
+
+func lexer(tokens []token) (ast *node, err error) {
+	var head *node
+
+	var first = true
+	var expectValue = true
+	for _, t := range tokens {
+		if first {
+			first = false
+			//first token must ve a value
+			if t.isOperator() {
+				return nil, fmt.Errorf("can't start pool code with an operator: %s", t)
+			}
+		}
+		if expectValue && t.isOperator() {
+			return nil, fmt.Errorf("expected a value but found an operator: %s", t)
+		}
+		if !expectValue && !t.isOperator() {
+			return nil, fmt.Errorf("expected a operator but found a value: %s", t)
+		}
+		switch {
+		case t.isOperator():
+			n := &node{
+				raw:  t,
+				left: head,
+			}
+			head = n
+		default:
+			n := &node{
+				raw: t,
+			}
+			if t.isNumeric() {
+				n.value = t.asNumeric()
+			}
+			switch {
+			case head == nil:
+				head = n
+			case head.left == nil:
+				head.left = n
+			default:
+				head.right = n
+			}
+		}
+		expectValue = !expectValue
+	}
+	return head, nil
 }

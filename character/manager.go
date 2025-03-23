@@ -60,6 +60,8 @@ func char2Print(c model.Character) (pc print.BSChar) {
 		// }
 		if sa.PoolCode != "" {
 			pool = int2Str(sa.PoolCode.Calculate(c))
+		} else {
+			pool = "-"
 		}
 		notes := sa.Summary
 		if sa.OutputSummary != "" {
