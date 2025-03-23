@@ -1,0 +1,54 @@
+name: Pwer Pwer
+profession: engineer
+species: 
+  name: "Zoallan"
+  base_health: 4
+  target: 9
+  hands: 3
+  move: 7
+  armor: false
+  species_abilities:
+    - name: "Carapace"
+      description: "-2 points of damage from all sources."
+
+prestige: 300
+experience: 300
+credits: 300
+
+athletics: 1
+combat: 1
+engineering: 4
+pilot: 0
+science: 1
+
+move: 7
+base_hp: 4
+target: 9
+luck: 6
+hands: 3
+
+hp: 6
+rank: 1
+carry: 10
+
+special_abilities:
+  - name: Forethinker
+
+gear:
+  - name: Nerve Disruptor
+    notes: 2d6-4, if dmg, drop
+    mass: 5
+    status: .
+  - name: Toolkit
+    notes: -1 to upgrade or repair.
+    mass: 5
+    status: .
+
+gear_status:
+  - name: Nerve Disruptor
+    equiped: true
+    upgraded: false
+  - name: Toolkit
+    equiped: true
+    upgraded: false
+

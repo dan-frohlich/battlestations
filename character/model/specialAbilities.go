@@ -42,7 +42,7 @@ type SpecialAbility struct {
 	OutputSummary   string
 	FullDescription string
 	Types           []AbilityType
-	// poolFunc        func(c *Character)
+	PoolFunc        func(c Character) int
 }
 
 var (
@@ -52,7 +52,7 @@ var (
 
 func indexAbility() {
 	indexSync.Do(func() {
-		abilityIndex := make(map[string]SpecialAbility)
+		abilityIndex = make(map[string]SpecialAbility)
 		for _, a := range abilities {
 			abilityIndex[a.Name] = a
 		}

@@ -56,13 +56,19 @@ const (
 	ToxinGearType
 )
 
+type GearRef struct {
+	Name     string `yaml:"name"`
+	Equiped  bool   `yaml:"equiped"`
+	Upgraded bool   `yaml:"upgraded"`
+}
+
 type Gear struct {
-	Cost   int
-	Energy YN
-	Mass   int
-	Name   string
-	Notes  string
-	Type   GearType
+	Cost   int      `yaml:"cost"`
+	Energy YN       `yaml:"energy"`
+	Mass   int      `yaml:"mass"`
+	Name   string   `yaml:"name"`
+	Notes  string   `yaml:"notes"`
+	Type   GearType `yaml:"type"`
 }
 
 var (
