@@ -9,8 +9,8 @@ func (ss SkillSet) AsLevels() []SkillLevel {
 	return nil
 }
 
-func GetStatingSkillSets() []string {
-	return []string{"41110", "33100", "32210", "22221", "321111"}
+func GetStatingSkillSets() []SkillSet {
+	return []SkillSet{"41110", "33100", "32210", "22221", "321111"}
 }
 
 var (
