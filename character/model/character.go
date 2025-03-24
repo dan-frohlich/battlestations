@@ -63,6 +63,19 @@ func (c Character) Carry() int {
 	return int(c.Athletics) * 10
 }
 
+func (c Character) Load() (load int) {
+	for _, g := range c.Gear {
+		if g.Equiped || g.Installed {
+			load += g.Mass
+		}
+	}
+	return load
+}
+
+func (c Character) Overburdened() bool {
+	return c.Load() > c.Carry()
+}
+
 func MustLoadCharacter(data []byte) Character {
 	c, err := LoadCharacter(data)
 	if err != nil {

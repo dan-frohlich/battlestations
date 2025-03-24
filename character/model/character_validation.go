@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 type ValidationMessage string
@@ -15,6 +16,14 @@ func (vm ValidationMessage) Error() string {
 // String stringer interface
 func (vm ValidationMessage) String() string {
 	return string(vm)
+}
+
+// ID return val;idation id
+func (vm ValidationMessage) ID() string {
+	if len(vm) > 0 {
+		return strings.Split(string(vm), " ")[0]
+	}
+	return "?"
 }
 
 func ValidationMessagef(format string, args ...any) ValidationMessage {
@@ -98,6 +107,13 @@ func NewCharacterValidator() *CharacterValidator {
 			//must not have unspent prestige
 			if c.Prestige >= c.Rank.AsInt()*100 {
 				return []ValidationMessage{ValidationMessagef("%s - must not have unspent prestige: expected no more than %d prestige but found %d", id, c.Rank*100, c.Prestige)}
+			}
+			return nil
+		},
+		"v05": func(id string, c Character) (issues []ValidationMessage) {
+			//must not have unspent prestige
+			if c.Overburdened() {
+				return []ValidationMessage{ValidationMessagef("%s - Overburdended: carrying %d with a carry limit of %d", id, c.Load(), c.Carry())}
 			}
 			return nil
 		},

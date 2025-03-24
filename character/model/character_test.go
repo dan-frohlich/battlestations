@@ -3,6 +3,7 @@ package model
 import (
 	_ "embed"
 	"fmt"
+	"strings"
 	"testing"
 
 	"gopkg.in/yaml.v2"
@@ -23,39 +24,50 @@ var sampleChar04 []byte
 func TestLoadCharacter(t *testing.T) {
 
 	type tCase struct {
-		id              string
-		data            []byte
-		expectedSANames []string
-		expectedSACount int
+		id                 string
+		data               []byte
+		expectedSANames    []string
+		expectedSACount    int
+		expectedIssueIDs   map[string]struct{}
+		expectedIssueCount int
 	}
 
 	tCases := []tCase{
 		{
-			id:              "tc01",
-			data:            sampleChar01,
-			expectedSACount: 2,
-			expectedSANames: []string{"Forethinker", "Blink*"},
+			id:                 "tc01",
+			data:               sampleChar01,
+			expectedSACount:    2,
+			expectedSANames:    []string{"Forethinker", "Blink*"},
+			expectedIssueCount: 0,
+			expectedIssueIDs:   map[string]struct{}{},
 		},
 		{
-			id:              "tc02",
-			data:            sampleChar02,
-			expectedSACount: 2,
-			expectedSANames: []string{"Forethinker", "Mr. Fixit"},
+			id:                 "tc02",
+			data:               sampleChar02,
+			expectedSACount:    2,
+			expectedSANames:    []string{"Forethinker", "Mr. Fixit"},
+			expectedIssueCount: 0,
+			expectedIssueIDs:   map[string]struct{}{},
 		},
 		{
-			id:              "tc03",
-			data:            sampleChar03,
-			expectedSACount: 3,
-			expectedSANames: []string{"Forethinker", "Mr. Fixit", "Resourceful"},
+			id:                 "tc03",
+			data:               sampleChar03,
+			expectedSACount:    3,
+			expectedSANames:    []string{"Forethinker", "Mr. Fixit", "Resourceful"},
+			expectedIssueCount: 0,
+			expectedIssueIDs:   map[string]struct{}{},
 		},
 		{
-			id:              "tc04",
-			data:            sampleChar04,
-			expectedSACount: 8,
-			expectedSANames: []string{"Hacker", "Resourceful", "Unconventional", "Teleporter Specialist", "Healer", "Forethinker", "Mobile", "Blink (Origins '21)*"},
+			id:                 "tc04",
+			data:               sampleChar04,
+			expectedSACount:    8,
+			expectedSANames:    []string{"Hacker", "Resourceful", "Unconventional", "Teleporter Specialist", "Healer", "Forethinker", "Mobile", "Blink (Origins '21)*"},
+			expectedIssueCount: 2,
+			expectedIssueIDs:   map[string]struct{}{"v01": struct{}{}, "v03": struct{}{}},
 		},
 	}
 
+	v := NewCharacterValidator()
 	for id, tc := range tCases {
 		name := fmt.Sprintf("tc%02d", id+1)
 		t.Run(name, func(t *testing.T) {
@@ -64,6 +76,33 @@ func TestLoadCharacter(t *testing.T) {
 			if e != nil {
 				t.Errorf("error unmarshaling character: %s", e)
 				return
+			}
+			issues, errs := v.ValidateAll(c)
+			for _, e := range errs {
+				t.Errorf("validation Error: %s", e)
+			}
+			if len(issues) != tc.expectedIssueCount {
+				t.Errorf("expexted %d validation issues but found %d issues", tc.expectedIssueCount, len(issues))
+				for _, issue := range issues {
+					t.Errorf("unexpexted validation issues: %s", issue)
+				}
+			}
+			for _, issue := range issues {
+				if _, ok := tc.expectedIssueIDs[issue.ID()]; !ok {
+					t.Errorf("unexpexted validation issues: %s", issue)
+				}
+			}
+			for id := range tc.expectedIssueIDs {
+				var idFound bool
+				for _, issue := range issues {
+					if strings.HasPrefix(issue.String(), id) {
+						idFound = true
+						break
+					}
+				}
+				if !idFound {
+					t.Errorf("failked to find expexted validation issue type %s", id)
+				}
 			}
 			// b, e := json.MarshalIndent(c, "", " ")
 			// b, e := json.Marshal(c)
