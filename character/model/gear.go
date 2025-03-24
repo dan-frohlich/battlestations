@@ -66,6 +66,7 @@ type GearRef struct {
 	OutputNotes string   `yaml:"print_notes"`
 	Type        GearType `yaml:"type"`
 	Equiped     bool     `yaml:"equiped"`
+	Installed   bool     `yaml:"installed"`
 	Upgraded    bool     `yaml:"upgraded"`
 }
 
@@ -203,6 +204,7 @@ var meleeWeapons = []Gear{
 	{Name: "Energy Blade", Cost: 1300, Mass: 8, Energy: Y, Notes: "3d6-3 damage. 1/6 break module. [☠ dangerous]", Type: MeleeWeaponGearType},
 	{Name: "Knife", Cost: 5, Mass: 2, Energy: N, Notes: "1d6 damage.", Type: MeleeWeaponGearType},
 	{Name: "Lightning Rod", Cost: 525, Mass: 5, Energy: Y, Notes: "1d6 damage and Stun Effect. [☠ dangerous]", Type: MeleeWeaponGearType},
+	{Name: "Monomolecular Blade", Cost: 500, Mass: 9, Energy: Y, Notes: "1d6 + successes damage (max 5)", Type: MeleeWeaponGearType},
 	{Name: "Phase Pick", Cost: 300, Mass: 10, Energy: Y, Notes: "Melee Disintegrator: 1d6 damage and Athletics check of 8 or disintegrate", Type: MeleeWeaponGearType},
 	{Name: "Plasma Dagger", Cost: 275, Mass: 5, Energy: Y, Notes: "Roll 2d6 fire damage and count either one. [☠ dangerous]", Type: MeleeWeaponGearType},
 	{Name: "Sword", Cost: 10, Mass: 4, Energy: Y, Notes: "2d6-2 damage.", Type: MeleeWeaponGearType},

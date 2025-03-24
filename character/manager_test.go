@@ -17,11 +17,14 @@ var (
 
 	//go:embed model/sample03.yaml
 	sampleChar03 []byte
+
+	//go:embed model/sample04.yaml
+	sampleChar04 []byte
 )
 
 func TestManagerLoadAndPrint(t *testing.T) {
 
-	tCases := [][]byte{sampleChar01, sampleChar02, sampleChar03}
+	tCases := [][]byte{sampleChar01, sampleChar02, sampleChar03, sampleChar04}
 
 	for id, tc := range tCases {
 		t.Run(fmt.Sprintf("tc:%02d", id+1),

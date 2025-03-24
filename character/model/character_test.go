@@ -2,7 +2,6 @@ package model
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -17,6 +16,9 @@ var sampleChar02 []byte
 
 //go:embed sample03.yaml
 var sampleChar03 []byte
+
+//go:embed sample04.yaml
+var sampleChar04 []byte
 
 func TestLoadCharacter(t *testing.T) {
 
@@ -46,6 +48,12 @@ func TestLoadCharacter(t *testing.T) {
 			expectedSACount: 3,
 			expectedSANames: []string{"Forethinker", "Mr. Fixit", "Resourceful"},
 		},
+		{
+			id:              "tc04",
+			data:            sampleChar04,
+			expectedSACount: 8,
+			expectedSANames: []string{"Hacker", "Resourceful", "Unconventional", "Teleporter Specialist", "Healer", "Forethinker", "Mobile", "Blink (Origins '21)*"},
+		},
 	}
 
 	for id, tc := range tCases {
@@ -58,15 +66,14 @@ func TestLoadCharacter(t *testing.T) {
 				return
 			}
 			// b, e := json.MarshalIndent(c, "", " ")
-			b, e := json.Marshal(c)
-			if e != nil {
-				t.Errorf("error json marshaling character: %s", e)
-				return
-			}
-			t.Logf("%s", string(b))
+			// b, e := json.Marshal(c)
+			// if e != nil {
+			// 	t.Errorf("error json marshaling character: %s", e)
+			// 	return
+			// }
+			// t.Logf("%s", string(b))
 			if len(c.SpecialAbilities) != tc.expectedSACount {
 				t.Errorf("error loading special abilities expeted %d, found %d", tc.expectedSACount, len(c.SpecialAbilities))
-				return
 			}
 			for i := range c.SpecialAbilities {
 				if i >= len(tc.expectedSANames) {

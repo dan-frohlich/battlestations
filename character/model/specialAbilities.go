@@ -43,6 +43,16 @@ type SpecialAbility struct {
 	FullDescription string        `yaml:"description"`
 	Types           []AbilityType `yaml:"types"`
 	Pool            PoolCode      `yaml:"pool"`
+	MoveBonus       int           `yaml:move_bonus`
+}
+
+type SpecialAbilities []SpecialAbility
+
+func (sas SpecialAbilities) MoveBonus() (moveBonus int) {
+	for _, sa := range sas {
+		moveBonus += sa.MoveBonus
+	}
+	return moveBonus
 }
 
 var (
@@ -140,7 +150,7 @@ var abilities = []SpecialAbility{
 	{Name: "Mentally Shielded", Pool: "Athletics + Psionics", Summary: "Retard personal energy damage. Pool of Athletics + Psionics", Types: []AbilityType{}},
 	{Name: "Mind Mender", Pool: "Athletics + Psionics", Summary: "Absrob others damage onto yourself. Pool of Athletics + Psionics", Types: []AbilityType{}},
 	{Name: "Miracle Worker", Summary: "Choose a die roll instead of rolling it once per campaign turn. Also +1 Luck", Types: []AbilityType{}},
-	{Name: "Mobile", Summary: "+2 Move. Ignore OOC for movement. Reroll on any attempt to move extra squares", Types: []AbilityType{}},
+	{Name: "Mobile", MoveBonus: 2, Summary: "+2 Move. Ignore OOC for movement. Reroll on any attempt to move extra squares", Types: []AbilityType{}},
 	{Name: "Mr. Fixit", Pool: "engineering + science", Summary: "Pool to reroll repairs and upgrades or repair as a free action. Pool of Engineering + Science", OutputSummary: "reroll repairs / upgrades", Types: []AbilityType{}},
 	{Name: "Multi-Shot Expert", Summary: "Fire multibarrel twice as a single action. Reconfigure cannons as an automatic action", Types: []AbilityType{}},
 	{Name: "Nimble", Pool: "Athletics", Summary: "Take bonus actions at +3 difficulty max once per phase. Pool of Athletics", Types: []AbilityType{}},

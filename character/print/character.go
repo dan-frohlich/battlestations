@@ -22,6 +22,7 @@ type BSChar struct {
 	Credits          string           `yaml:"credits"`
 	Species          string           `yaml:"species"`
 	Ability          string           `yaml:"alien_ability"`
+	TinyNote         string           `yaml:"tiny_note"`
 	BaseHP           string           `yaml:"base_hp"`
 	Move             string           `yaml:"move"`
 	Target           string           `yaml:"target"`

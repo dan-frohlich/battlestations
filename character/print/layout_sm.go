@@ -34,7 +34,13 @@ var smallLayout = layout{
 		fontWeight:   "I",
 		overflowRows: 2,
 	},
-
+	"tiny_note": &cell{
+		x: 7, y: 46, w: 20, h: 8,
+		align:      "LM",
+		fontFamily: largeLayoutFont,
+		fontSize:   10,
+		fontWeight: "B",
+	},
 	"athletics": &cell{
 		x: 107, y: 13, w: 17, h: 8,
 		align:      "CM",
@@ -155,7 +161,7 @@ func smallLayoutInit() {
 	//add special abilities
 	dy := 6.2
 	offsetX := 7.0
-	height := 6.0
+	height := 6.5
 	tableType := ttSA
 	for row := 0; row < 10; row++ {
 		key := layoutTableKeyName(tableType, row, "name")

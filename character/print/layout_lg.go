@@ -30,7 +30,13 @@ var largeLayout = layout{
 		fontWeight:   "I",
 		overflowRows: 2,
 	},
-
+	"tiny_note": &cell{
+		x: 7, y: 46, w: 20, h: 8,
+		align:      "LM",
+		fontFamily: largeLayoutFont,
+		fontSize:   10,
+		fontWeight: "B",
+	},
 	"athletics": &cell{
 		x: 107, y: 13, w: 17, h: 8,
 		align:      "CM",
@@ -149,8 +155,8 @@ var largeLayout = layout{
 
 func largeLayoutInit() {
 	//add special abilities
-	dy := 6.2
-	offsetX := 7.0
+	dy := 6.35
+	offsetX := 7.5
 	height := 6.0
 	tableType := ttSA
 	for row := 0; row < 32; row++ {
@@ -173,7 +179,7 @@ func largeLayoutInit() {
 	}
 
 	tableType = ttEq
-	offsetX = 101.5
+	offsetX = 102.5
 	for row := 0; row < 32; row++ {
 		key := layoutTableKeyName(tableType, row, "name")
 		offset := float64(row) * dy

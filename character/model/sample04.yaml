@@ -1,0 +1,79 @@
+#------------------------------------
+name:          tc04 Sample Character
+player:        My Name
+profession:    Scientist
+species:       
+  name: Zoallan
+#------------------------------------
+prestige:      300
+experience:    150
+credits:       300
+#------------------------------------
+athletics:       2
+combat:          1
+engineering:     5
+pilot:           1
+science:         6
+psionics:        2
+rank:            7
+#------------------------------------
+special_abilities:
+  - name:  Hacker
+    print_summary: Hack is Free Action @ -3 (p60)
+  - name:  Resourceful
+    print_summary: Sub Sci/Eng for skill (pg 66)
+  - name:  Unconventional
+    print_summary: "extra skill d6 e-/o+(pg 70)"
+  - name:  Teleporter Specialist
+    print_summary: "1/2 used, reroll pool (pg 68)"
+  - name:  Healer
+    print_summary: "+1d6 healing (pg 60)"
+  - name:  Forethinker
+    print_summary: "roll b4 decl action (pg 60)"
+  - name:  Mobile
+    print_summary: "+2\" ignore OOC. (pg 63)"
+  - name:  Blink (Origins '21)
+    pool: psionics
+    print_summary: Blink to (2d6,2d6), or 1d6Dmg
+#------------------------------------
+gear:
+  - name:         "Blaster"
+    print_notes:  2d6-1 Dam(+1)*
+    upgraded:     true
+    equiped:      true
+  - name:         "MedKit"
+    print_notes:  Sci v 11 heals 1d (p94)(+1)*
+    upgraded:     true
+    equiped:      true
+  - name:         Wristcomp
+    print_notes:  "+1 hack, repair, upgrd.(p95)"
+    equiped:      true
+  - name:         Autonurse
+    print_notes:  "Heal +1 per d6"
+    mass:         3 #"3*"
+    upgraded:     true
+    equiped:      true
+  - name:         Cyberpatch
+    print_notes:  -1 diff remote / hacking (p99)
+    mass:         1 #"1*"
+    upgraded:     true
+    installed:    true
+  - name:         Eng Skill Chip
+    print_notes:  "+1 Engineering Skill Tests"
+    mass:         2
+    installed:    true
+  - name:         Pilot Skill Chip
+    print_notes:  "+1 Pilot Skill Tests"
+    mass:         2
+    installed:    true
+  - name:         Science Skill Chip
+    print_notes:  "+1 Science Skill exp"
+    mass:         1 #"1*"
+    upgraded:     true
+    installed:    true
+  - name:         "Backpack"
+  - name:         "Mono. Blade"
+    print_notes:  "dmg: 1d6 + sucs (pg 111)(+1)"
+  - name:         "Sensor Bay"
+    print_notes:  "Module"
+#------------------------------------

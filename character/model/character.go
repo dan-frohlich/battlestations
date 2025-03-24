@@ -38,11 +38,8 @@ type Character struct {
 	Prestige         int                `yaml:"prestige"`
 	Experience       int                `yaml:"experience"`
 	Credits          int                `yaml:"credits"`
-	Move             int                `yaml:"move"`
-	Target           int                `yaml:"target"`
-	Hands            int                `yaml:"hands"`
 	Species          Species            `yaml:"species"`
-	SpecialAbilities []SpecialAbility   `yaml:"special_abilities"`
+	SpecialAbilities SpecialAbilities   `yaml:"special_abilities"`
 	Gear             []GearRef          `yaml:"gear"`
 }
 
@@ -77,7 +74,6 @@ func LoadCharacter(data []byte) (c Character, err error) {
 const ItemNotFoundString = "*"
 
 func hydrate(c Character) Character {
-	c.Name += ItemNotFoundString //TODO remove after debugging
 
 	if s, ok := GetSpecies(c.Species.Name); ok {
 		c.Species.Armor = s.Armor
@@ -120,6 +116,7 @@ func hydrate(c Character) Character {
 		}
 		c.SpecialAbilities[i].Types = sa.Types
 		c.SpecialAbilities[i].Pool = sa.Pool
+		c.SpecialAbilities[i].MoveBonus = sa.MoveBonus
 	}
 
 	for i := range c.Gear {
@@ -131,7 +128,7 @@ func hydrate(c Character) Character {
 		c.Gear[i].Notes = g.Notes
 		c.Gear[i].Cost = g.Cost
 		c.Gear[i].Energy = g.Energy
-		if !c.Gear[i].Upgraded && c.Gear[i].Mass == 0 {
+		if !c.Gear[i].Upgraded || c.Gear[i].Mass == 0 {
 			c.Gear[i].Mass = g.Mass
 		}
 		c.Gear[i].Notes = g.Notes

@@ -3,7 +3,6 @@ package print
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/jung-kurt/gofpdf"
 )
@@ -70,7 +69,7 @@ func renderPDF(charData BSChar) (*gofpdf.Fpdf, error) {
 		for _, k := range saAttr {
 			v := sam[k]
 			lk := layoutTableKeyName(ttSA, i, k)
-			log.Default().Printf("[dbg] %#v", sa)
+			// log.Default().Printf("[dbg] %#v", sa)
 			theLayout.draw(pdf, lk, v, DrawBorder)
 		}
 	}
