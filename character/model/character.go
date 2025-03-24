@@ -12,6 +12,10 @@ func (sl SkillLevel) String() string {
 	return fmt.Sprintf("%d", sl)
 }
 
+func (sl SkillLevel) AsInt() int {
+	return int(sl)
+}
+
 type OptionalSkillLevel int
 
 func (sl OptionalSkillLevel) String() string {
@@ -21,10 +25,14 @@ func (sl OptionalSkillLevel) String() string {
 	return fmt.Sprintf("%d", sl)
 }
 
+func (sl OptionalSkillLevel) AsInt() int {
+	return int(sl)
+}
+
 type Character struct {
 	Name             string             `yaml:"name"`
 	Player           string             `yaml:"player"`
-	StartingSkillSet string             `yaml:"starting_skill_set"`
+	StartingSkillSet SkillSet           `yaml:"starting_skill_set"`
 	Profession       string             `yaml:"profession"`
 	Athletics        SkillLevel         `yaml:"athletics"`
 	Combat           SkillLevel         `yaml:"combat"`

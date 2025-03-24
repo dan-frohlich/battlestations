@@ -43,7 +43,7 @@ type SpecialAbility struct {
 	FullDescription string        `yaml:"description"`
 	Types           []AbilityType `yaml:"types"`
 	Pool            PoolCode      `yaml:"pool"`
-	MoveBonus       int           `yaml:move_bonus`
+	MoveBonus       int           `yaml:"move_bonus"`
 }
 
 type SpecialAbilities []SpecialAbility
