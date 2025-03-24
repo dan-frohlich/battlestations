@@ -14,6 +14,10 @@ type Manager struct {
 
 func (m *Manager) SetCharacter(c model.Character) {
 	m.character = c
+	issues, _ := model.NewCharacterValidator().ValidateAll(c)
+	for _, issue := range issues {
+		fmt.Println("validation issue:", issue)
+	}
 }
 
 func (m *Manager) Print() {

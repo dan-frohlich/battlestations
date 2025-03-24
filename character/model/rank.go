@@ -2,6 +2,10 @@ package model
 
 type Rank int
 
+func (r Rank) AsInt() int {
+	return int(r)
+}
+
 var rankTitle = []string{
 	"civilian",
 	"Ensign",
