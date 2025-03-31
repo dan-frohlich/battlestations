@@ -1,0 +1,147 @@
+digraph {
+
+  rankdir = "LR"
+  margin = 0.5 # in inches
+
+  node [fontname = "Handlee"];
+  edge [fontname = "Handlee"];
+
+
+  start [
+    label = "Start";
+    shape = circle;
+  ];
+
+
+  main_menu [
+    label = "<f0> Main Menu View|<new>create|<load> load|<quit>quit";
+    shape = record;
+  ];
+
+  new_char [
+    label = "<f0>New Char View|<done> done|<stat_array>set stats|<species>set species|<name> set name|<prof>set profession|<basic> set basic gear";
+    shape = record;
+  ];
+
+
+  load_char [
+    label = "Load Char";
+    shape = rect;
+    style = rounded;
+  ];
+
+  save_char_1 [
+    label = "Save Char?\nReturn to Main";
+    shape = rect;
+    style = rounded;
+  ];
+
+  save_char_2 [
+    label = "Save Char";
+    shape = rect;
+    style = rounded;
+  ];
+
+  print_char [
+    label = "Print Char";
+    shape = rect;
+    style = rounded;
+  ];
+
+  manage_char [
+    label = "<f0>Manage Char View|<done> done|<preview> preview|<print> print|<save> save|<aftermath> aftermath|<shopping> purchase gear";
+    shape = record;
+  ];
+
+  set_stats [
+    label = "Set Stats";
+    shape = rect;
+    style = rounded;
+  ];
+
+  set_species [
+    label = "Set Species";
+    shape = rect;
+    style = rounded;
+  ];
+
+  set_name [
+    label = "Set Name";
+    shape = rect;
+    style = rounded;
+  ];
+
+  set_profession [
+    label = "Set Profession";
+    shape = rect;
+    style = rounded;
+  ];
+
+  set_basic_gear [
+    label = "Set Basic Gear";
+    shape = rect;
+    style = rounded;
+  ];
+
+  new_char_complete [
+    label = "new char\ncomplete?"
+    shape = diamond
+  ]
+
+  preview [
+    label = "Character Preview"
+    shape = rect
+    style = rounded;
+  ]
+
+  mission_aftermath [
+    label = "<f0>Mission AfterMath View|<presteige>prestige|<exp>experience|<credits>credits|<requisition>requisition|<pillage>pillage"
+    shape = record
+  ]
+
+  shopping [
+    label = "Purchase Gear"
+    shape = rect
+    style = rounded;
+  ]
+
+  end [
+    label = "End";
+    shape = circle;
+    rank = min
+  ];
+
+
+  start -> main_menu:f0 [ ];
+  main_menu:new -> new_char:f0 [ ];
+  main_menu:load -> load_char:w [ ];
+
+  manage_char:print -> print_char:w [ dir = "both" ];
+  manage_char:save -> save_char_2:w [ dir = "both" ];
+  manage_char:aftermath -> mission_aftermath:f0:w [ dir = "both" ]
+  shopping -> manage_char:shopping [ dir = "both" ]
+
+  new_char:stat_array -> set_stats:w [ ];
+  new_char:species -> set_species:w [ ];
+  new_char:name -> set_name:w [ ];
+  new_char:prof -> set_profession:w [ ];
+  new_char:basic -> set_basic_gear:w [ ];
+  set_stats:e -> new_char_complete:w [ ];
+  set_species:e -> new_char_complete:w [ ];
+  set_name:e -> new_char_complete:w [ ];
+  set_profession:e -> new_char_complete:w [ ];
+  set_basic_gear:e -> new_char_complete:w [ ];
+
+  main_menu:quit:e -> end:w [ ];
+  load_char:e -> new_char_complete:w [ ];
+  manage_char:done:e -> save_char_1:s [ ];
+  manage_char:preview:e -> preview:w [ dir=both ]
+
+  new_char_complete:n -> new_char:f0:n [ label="no" ]
+  new_char_complete:e -> manage_char:f0:n [ label="yes" ]
+
+  save_char_1:s -> new_char:done:e [ dir=back];
+
+  save_char_1:n -> main_menu:n  [ ];
+
+}

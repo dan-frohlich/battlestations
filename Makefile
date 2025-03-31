@@ -67,6 +67,10 @@ lint:
 .PHONY: check
 check: generate tidy lint test
 
+.PHONY: dot
+dot: 
+	dot -O -Tsvg tui/tui_design.dot 
+
 ## build: build the application
 .PHONY: build
 build:
