@@ -9,16 +9,29 @@ type statusModel struct {
 }
 
 // Init implements tea.Model.
-func (d *statusModel) Init() tea.Cmd {
-	panic("unimplemented")
+func (m statusModel) Init() tea.Cmd {
+	return nil
 }
 
 // Update implements tea.Model.
-func (d *statusModel) Update(tea.Msg) (tea.Model, tea.Cmd) {
-	panic("unimplemented")
+func (m statusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+
+	// Is it a key press?
+	case tea.KeyMsg:
+
+		// what key was pressed?
+		switch msg.String() {
+
+		//  exit the program.
+		case "ctrl+c", "q", "esc":
+			return m, tea.Quit
+		}
+	}
+	return m, nil
 }
 
 // View implements tea.Model.
-func (d *statusModel) View() string {
-	panic("unimplemented")
+func (m statusModel) View() string {
+	return "my status messages"
 }

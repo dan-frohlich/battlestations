@@ -13,7 +13,15 @@ type App struct {
 
 func NewApp() *App {
 	a := &App{
-		model: initialModel(),
+		model: &mainModel{
+			focus:   menuPanel,
+			usecase: mainView,
+			menu: menuModel{
+				content: "this is my menu",
+			},
+			detail: detailModel{},
+			status: statusModel{},
+		},
 	}
 	a.model.app = a
 
@@ -28,8 +36,4 @@ func (app *App) Start() {
 		fmt.Printf("error: %v", err)
 		os.Exit(1)
 	}
-}
-
-func initialModel() *mainModel {
-	return &mainModel{}
 }
