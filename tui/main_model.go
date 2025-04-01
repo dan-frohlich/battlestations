@@ -64,17 +64,30 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, c)
 		}
 	case tea.WindowSizeMsg:
-		sm, c := m.menu.Update(msg)
+		menuWidth := m.menu.DesiredWidth()
+		menuResize := SizeMessage{
+			Width:  menuWidth,
+			Height: msg.Height - 8,
+		}
+		detailResize := SizeMessage{
+			Width:  msg.Width - menuWidth - 8,
+			Height: msg.Height - 8,
+		}
+		statusResize := SizeMessage{
+			Width:  msg.Width - 4,
+			Height: 4,
+		}
+		sm, c := m.menu.Update(menuResize)
 		if mm, ok := sm.(menuModel); ok {
 			m.menu = mm
 			cmds = append(cmds, c)
 		}
-		sm, c = m.detail.Update(msg)
+		sm, c = m.detail.Update(detailResize)
 		if mm, ok := sm.(detailModel); ok {
 			m.detail = mm
 			cmds = append(cmds, c)
 		}
-		sm, c = m.status.Update(msg)
+		sm, c = m.status.Update(statusResize)
 		if mm, ok := sm.(statusModel); ok {
 			m.status = mm
 			cmds = append(cmds, c)
@@ -106,8 +119,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 var (
-	style      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true)
-	focusStyle = lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true)
+	style      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true).Padding(0, 1, 0, 1)
+	focusStyle = lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true).Padding(0, 1, 0, 1)
 )
 
 func (m mainModel) View() string {

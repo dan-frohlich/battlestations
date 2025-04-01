@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -17,12 +16,9 @@ func NewApp() *App {
 		model: &mainModel{
 			focus:   menuPanel,
 			usecase: mainView,
-			menu: menuModel{
-				content: "MY MENU",
-				view:    viewport.New(12, 12),
-			},
-			detail: detailModel{},
-			status: statusModel{},
+			menu:    newMenuModel().SetContent("MENU VIEW\n* Quit [esc]"),
+			detail:  newDetailModel().SetContent("DETAILED VIEW"),
+			status:  newStatusModel().SetContent("STATUS MESSAGE VIEW"),
 		},
 	}
 	a.model.app = a
