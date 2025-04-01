@@ -3,6 +3,7 @@ module github.com/dan-frohlich/battlestations
 go 1.22
 
 require (
+	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2

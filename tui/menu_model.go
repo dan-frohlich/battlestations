@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -8,6 +9,7 @@ import (
 var _ tea.Model = &menuModel{}
 
 type menuModel struct {
+	view    viewport.Model
 	content string
 }
 
@@ -30,17 +32,20 @@ func (m menuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "esc":
 			return m, tea.Quit
 		default:
-			m.content += "\n" + msg.String()
+			// m.content += "\n" + msg.String()
 			return m, tea.WindowSize()
 		}
+	case tea.WindowSizeMsg:
+		m.view = viewport.New(12, msg.Height-6)
+		m.view.SetContent(m.content)
 	case ContentMsg:
 		m.content = string(msg)
-		// log.Println(msg)
+		m.view.SetContent(m.content)
 	}
 	return m, nil
 }
 
 // View implements tea.Model.
 func (m menuModel) View() string {
-	return m.content
+	return m.view.View()
 }

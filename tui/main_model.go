@@ -63,6 +63,23 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = mm
 			cmds = append(cmds, c)
 		}
+	case tea.WindowSizeMsg:
+		sm, c := m.menu.Update(msg)
+		if mm, ok := sm.(menuModel); ok {
+			m.menu = mm
+			cmds = append(cmds, c)
+		}
+		sm, c = m.detail.Update(msg)
+		if mm, ok := sm.(detailModel); ok {
+			m.detail = mm
+			cmds = append(cmds, c)
+		}
+		sm, c = m.status.Update(msg)
+		if mm, ok := sm.(statusModel); ok {
+			m.status = mm
+			cmds = append(cmds, c)
+		}
+		return m, tea.Batch(cmds...)
 	}
 	switch m.focus {
 	case menuPanel:
@@ -85,8 +102,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Return the updated mainModel to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, tea.Batch(cmds...)
 }
 
@@ -113,8 +128,7 @@ func (m mainModel) View() string {
 	detail := detailStyle.Render(m.detail.View())
 	status := statusStyle.Render(m.status.View())
 
-	right := lipgloss.JoinVertical(lipgloss.Left, status, detail)
-	all := lipgloss.JoinHorizontal(lipgloss.Top, menu, right)
-
+	top := lipgloss.JoinHorizontal(lipgloss.Top, menu, detail)
+	all := lipgloss.JoinVertical(lipgloss.Left, top, status)
 	return all
 }

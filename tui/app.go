@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -17,7 +18,8 @@ func NewApp() *App {
 			focus:   menuPanel,
 			usecase: mainView,
 			menu: menuModel{
-				content: "this is my menu",
+				content: "MY MENU",
+				view:    viewport.New(12, 12),
 			},
 			detail: detailModel{},
 			status: statusModel{},
@@ -29,7 +31,7 @@ func NewApp() *App {
 }
 
 func (app *App) Start() {
-	p := tea.NewProgram(app.model)
+	p := tea.NewProgram(app.model, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		//TODO should we panic?
