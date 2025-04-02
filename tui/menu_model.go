@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"fmt"
+	"os"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 )
@@ -11,42 +14,38 @@ var (
 )
 
 type menuModel struct {
-	title   string
-	content string
+	// title   string
 	form    *huh.Form
 	sel     *huh.Select[string]
+	file    *huh.FilePicker
 	msg     NewMenuMessage
+	usecase usecaseView
 }
 
 func newMenuModel(msg NewMenuMessage) menuModel {
+	// s := huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
 
-	s := huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
-
-	m := menuModel{
-		title: msg.title,
-		form:  huh.NewForm(huh.NewGroup(s)),
-		sel:   s,
-		msg:   msg,
+	return menuModel{
+		// title: msg.title,
+		// form:  huh.NewForm(huh.NewGroup(s)).WithShowHelp(true),
+		// sel:   s,
+		// msg:   msg,
 	}
-	// s.Value(&m.chosen)
-
-	return m
 }
 
 func (m menuModel) DesiredWidth() (w int) {
 	return 24
-	// for _, s := range m.msg.keys {
-	// 	i := len([]rune(s))
-	// 	if i > w {
-	// 		w = i
-	// 	}
-	// }
-	// return w + 8
 }
 
 // Init implements tea.Model.
 func (m menuModel) Init() tea.Cmd {
-	return m.form.Init()
+	if m.form != nil {
+		return m.form.Init()
+	}
+	if m.file != nil {
+		return m.file.Init()
+	}
+	return nil
 }
 
 // Update implements tea.Model.
@@ -57,42 +56,75 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	case NewMenuMessage:
 		m.msg = msg
 		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
-		m.form = huh.NewForm(huh.NewGroup(m.sel))
-		m.content = m.form.View()
+		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true)
 		cmd = tea.WindowSize()
 		cmds = append(cmds, cmd, m.form.Init())
-		// cmds = append(cmds, makeStatusCmd(infoLevel, fmt.Sprintf("new menu title: %s", msg.title)))
 	case SizeMsg:
-		m.form = m.form.WithWidth(msg.Width).WithHeight(msg.Height)
-		m.content = m.form.View()
+		if m.form != nil {
+			m.form = m.form.WithWidth(msg.Width).WithHeight(msg.Height)
+		}
+		// m.content = m.form.View()
+	case usecaseView:
+		m.usecase = msg
+		switch msg {
+		case manageCharView:
+		case loadCharSubView:
+			cd, _ := os.Getwd()
+			m.file = huh.NewFilePicker().
+				Picking(true).
+				DirAllowed(false).
+				CurrentDirectory(cd).
+				Title("Load a Character File").
+				Description("Select a .yaml character file").
+				AllowedTypes([]string{".yaml", ".yml"})
+			m.form = huh.NewForm(huh.NewGroup(m.file)).WithShowHelp(true)
+			cmds = append(cmds, m.file.Init(), tea.WindowSize())
+		}
+	// case filepicker.MsgFileChosen:
 	default:
 		l, cmd = m.form.Update(msg)
 		if lm, ok := l.(*huh.Form); ok {
 			m.form = lm
 		}
-		m.content = l.View()
 		cmds = append(cmds, cmd)
 	}
-	if m.form.State == huh.StateCompleted {
-		var sv string
-		m.sel.Value(&sv)
-		// Form is completed, process the results
-		// and potentially switch to a different view
-		if actionCmd, ok := m.msg.options[sv]; ok && actionCmd != nil {
-			cmds = append(cmds, actionCmd, tea.WindowSize())
+	if m.form != nil && m.form.State == huh.StateCompleted {
+		switch m.usecase {
+		case loadCharSubView:
+			cmds = append(cmds, newCmd(loadCharFileMsg(fmt.Sprintf("%s", m.file.GetValue()))))
+		default:
+			var sv string
+			m.sel.Value(&sv)
+			// Form is completed, process the results
+			// and potentially switch to a different view
+			if actionCmd, ok := m.msg.options[sv]; ok && actionCmd != nil {
+				cmds = append(cmds, actionCmd, tea.WindowSize())
+			}
+			// m.form.State = huh.StateNormal
 		}
-		// m.form.State = huh.StateNormal
 	}
 	return m, tea.Batch(cmds...)
 }
 
 // View implements tea.Model.
 func (m menuModel) View() string {
-	if m.form.State == huh.StateCompleted {
-		var sv string
-		m.sel.Value(&sv)
-		return sv
-	}
+	switch m.usecase {
+	case loadCharSubView:
+		if m.file.GetValue() != "" {
+			return fmt.Sprintf("Selected: %s", m.file.GetValue())
+		}
+		return m.file.View()
 
-	return m.form.View()
+	default:
+		if m.form != nil {
+			if m.form.State == huh.StateCompleted {
+				var sv string
+				m.sel.Value(&sv)
+				return sv
+			}
+
+			return m.form.View()
+		}
+	}
+	return "loading..."
 }

@@ -1,7 +1,10 @@
 package tui
 
 import (
+	"fmt"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -49,25 +52,30 @@ func (m statusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	makeStatusCmd(infoLevel, "info"),
 		// 	makeStatusCmd(warnLevel, "warn"),
 		// 	makeStatusCmd(errorLevel, "error"))
-	case debugMsg:
-		s := debugStyle.Render(string(msg))
-		m = m.handleStatusUpdate(s)
-	case infoMsg:
-		s := infoStyle.Render(string(msg))
-		m = m.handleStatusUpdate(s)
-	case warnMsg:
-		s := warnStyle.Render(string(msg))
-		m = m.handleStatusUpdate(s)
-	case errorMsg:
-		s := errorStyle.Render(string(msg))
-		m = m.handleStatusUpdate(s)
 	case statusMsg:
-		s := statusStyle.Render(string(msg))
-		m = m.handleStatusUpdate(s)
+		m = m.handleStatusUpdate(msg)
 	}
 	return m, tea.Batch(cmds...)
 }
-func (m statusModel) handleStatusUpdate(s string) statusModel {
+func (m statusModel) handleStatusUpdate(sm statusMsg) statusModel {
+	var s string
+	switch sm.lvl {
+	case debugLevel:
+		s = debugStyle.Render(sm.String())
+	case infoLevel:
+		s = infoStyle.Render(sm.String())
+	case warnLevel:
+		s = warnStyle.Render(sm.String())
+	case errorLevel:
+		s = errorStyle.Render(sm.String())
+	default:
+		s = statusStyle.Render(sm.String())
+	}
+	m.log(fmt.Sprintf("%s [%s] - %s", sm.ts.Format(time.RFC3339Nano), sm.caller, s))
+	for _, s := range sm.callstack {
+		m.log(s)
+	}
+
 	old := strings.Split(m.content, "\n")
 	if len(old) > 0 && old[len(old)-1] == s {
 		return m //squelch log spams
@@ -77,6 +85,17 @@ func (m statusModel) handleStatusUpdate(s string) statusModel {
 	m.view.SetContent(m.content)
 	_ = m.view.GotoBottom()
 	return m
+}
+
+func (m statusModel) log(msg string) {
+
+	file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	// Write the string to the file
+	_, _ = file.WriteString(msg + "\n")
 }
 
 var (
@@ -117,5 +136,10 @@ var (
 
 // View implements tea.Model.
 func (m statusModel) View() string {
-	return m.view.View()
+	s := m.view.View()
+	z := strings.Split(s, "\n")
+	if len(z) > 4 {
+		return strings.Join(z[len(z)-4:], "\n")
+	}
+	return s
 }

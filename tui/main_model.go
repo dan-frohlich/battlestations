@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/dan-frohlich/battlestations/character/model"
 )
 
 // assert interface compliance
@@ -17,6 +18,7 @@ type mainModel struct {
 	menu    menuModel
 	detail  detailModel
 	status  statusModel
+	file    FileModel
 }
 
 func (m mainModel) Init() tea.Cmd {
@@ -24,6 +26,7 @@ func (m mainModel) Init() tea.Cmd {
 		m.menu.Init(),
 		m.detail.Init(),
 		m.status.Init(),
+		makeUsecaseTransition(mainView),
 	)
 }
 
@@ -46,23 +49,29 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, makeFocusCmd(m.focus.next())
 		case "shift+tab":
 			return m, makeFocusCmd(m.focus.prev())
-
-			// // The "up" and "k" keys move the cursor up
-			// case "up", "k":
-
-			// // The "down" and "j" keys move the cursor down
-			// case "down", "j":
-
-			// // The "enter" key and the spacebar (a literal space) toggle
-			// // the selected state for the item that the cursor is pointing at.
-			// case "enter", " ":
 		}
+	case loadCharFileMsg:
+		l, c := m.file.Update(msg)
+		if ll, ok := l.(FileModel); ok {
+			m.file = ll
+		}
+		return m, c
+	case model.Character:
+		l, c := m.detail.Update(msg)
+		if ll, ok := l.(detailModel); ok {
+			m.detail = ll
+		}
+		return m, tea.Batch(c, makeUsecaseTransition(manageCharView))
 	case panel:
-		next := msg
-		m.focus = next
+		m.focus = msg
 		return m, nil
 	case usecaseView:
 		//we need to transition from m.usecase to msg
+		l, c := m.menu.Update(msg)
+		cmds = append(cmds, c)
+		if ll, ok := l.(menuModel); ok {
+			m.menu = ll
+		}
 		switch msg {
 		case newCharView:
 			cmds = append(cmds,
@@ -100,19 +109,29 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.detail = m.detail.SetContent("Main View Details")
 			m.usecase = msg
 		case loadCharSubView:
-			cmds = append(cmds,
-				newCmd(NewMenuMessage{
-					title: "Load Character",
-					keys: []string{
-						"main menu",
-					},
-					options: map[string]tea.Cmd{
-						"main menu": makeUsecaseTransition(mainView),
-						"Quit":      tea.Quit,
-					}}))
-			// cmds = append(cmds, makeFocusCmd(detailPanel))
 			m.detail = m.detail.SetContent("Load Character Details")
 			m.usecase = msg
+		case manageCharView:
+			cmds = append(cmds, newCmd(NewMenuMessage{
+				title: "Manage Character",
+				keys: []string{
+					"main menu",
+					"preview",
+					"print",
+					"save",
+					"aftermath",
+					"purchase gear",
+				},
+				options: map[string]tea.Cmd{
+					"main menu":     makeUsecaseTransition(mainView),
+					"preview":       makeUsecaseTransition(charPreviewSubView),
+					"print":         makeUsecaseTransition(printCharSubView),
+					"save":          makeUsecaseTransition(saveCharSubView),
+					"aftermath":     makeUsecaseTransition(missionAftermathView),
+					"purchase gear": makeUsecaseTransition(purchaseGearSubView),
+				}}))
+			m.usecase = msg
+			cmds = append(cmds, tea.WindowSize())
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", m.usecase, msg)))
 			cmds = append(cmds, makeUsecaseTransition(m.usecase)) //go back!
@@ -126,7 +145,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.menu = mm
 			return m, c
 		}
-	case statusMsg, debugMsg, infoMsg, warnMsg, errorMsg:
+	case statusMsg:
 		sm, c := m.status.Update(msg)
 		if mm, ok := sm.(statusModel); ok {
 			m.status = mm
@@ -168,6 +187,14 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
 		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
 		return m, tea.Batch(cmds...)
+
+	default:
+		t := fmt.Sprintf("%T", msg)
+		switch t {
+		case "huh.nextFieldMsg", "huh.nextGroupMsg", "tea.windowSizeMsg", "filepicker.readDirMsg":
+		default:
+			cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("unhandled message %T", msg)))
+		}
 	}
 
 	switch m.focus {

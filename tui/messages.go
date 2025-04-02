@@ -2,6 +2,9 @@ package tui
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -27,11 +30,35 @@ const (
 	errorLevel
 )
 
-type statusMsg string
-type debugMsg string
-type infoMsg string
-type warnMsg string
-type errorMsg string
+type statusMsg struct {
+	lvl       statusLevel
+	msg       string
+	ts        time.Time
+	caller    string
+	callstack []string
+}
+
+func (sm statusMsg) String() string {
+	switch sm.lvl {
+	case debugLevel:
+		return "[d] " + sm.msg
+	case infoLevel:
+		return "[i] " + sm.msg
+	case warnLevel:
+		return "[w] " + sm.msg
+	case errorLevel:
+		return "[e] " + sm.msg
+	default:
+		return sm.msg
+	}
+}
+
+// type debugMsg string
+// type infoMsg string
+// type warnMsg string
+// type errorMsg string
+
+type loadCharFileMsg string
 
 type NewMenuMessage struct {
 	title   string
@@ -46,11 +73,7 @@ func newCmd(message tea.Msg) tea.Cmd {
 }
 
 func makeUsecaseTransition(v usecaseView) tea.Cmd {
-	return tea.Batch(
-		makeStatusCmd(infoLevel, "you selected "+v.String()),
-		func() tea.Msg {
-			return v
-		})
+	return tea.Batch(newCmd(v), makeStatusCmd(infoLevel, "you selected "+v.String()))
 }
 
 func (nmm NewMenuMessage) items() (result []string) {
@@ -58,18 +81,34 @@ func (nmm NewMenuMessage) items() (result []string) {
 }
 
 func makeStatusCmd(l statusLevel, s string) tea.Cmd {
+	var (
+		caller string
+	)
+	i := 1
+	if _, file, line, ok := runtime.Caller(i); ok {
+		for strings.HasSuffix(file, "messages.go") {
+			i++
+			_, file, line, ok = runtime.Caller(i)
+		}
+		r := []rune(file)
+		j := strings.LastIndex(file, "battlestations/")
+		file = string(r[j+len("battlestations/"):])
+		// z := strings.Split(file, "/")
+		// file = strings.Join(z[len(z)-2:], "/")
+		caller = fmt.Sprintf("%s:%d", file, line)
+	}
 	return func() tea.Msg {
 		switch l {
 		case debugLevel:
-			return debugMsg("[d] " + s)
+			return statusMsg{ts: time.Now(), lvl: l, msg: "[d] " + s, caller: caller}
 		case infoLevel:
-			return infoMsg("[i] " + s)
+			return statusMsg{ts: time.Now(), lvl: l, msg: "[i] " + s, caller: caller}
 		case warnLevel:
-			return warnMsg("[w] " + s)
+			return statusMsg{ts: time.Now(), lvl: l, msg: "[w] " + s, caller: caller}
 		case errorLevel:
-			return errorMsg("[e] " + s)
+			return statusMsg{ts: time.Now(), lvl: l, msg: "[e] " + s, caller: caller}
 		default:
-			return statusMsg(s)
+			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		}
 	}
 }

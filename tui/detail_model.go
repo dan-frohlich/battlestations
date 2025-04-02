@@ -3,6 +3,8 @@ package tui
 import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/dan-frohlich/battlestations/character/model"
+	"gopkg.in/yaml.v2"
 )
 
 // assert interface compliance
@@ -34,6 +36,12 @@ func (m detailModel) Init() tea.Cmd {
 func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
+	case model.Character:
+		out, err := yaml.Marshal(msg)
+		if err != nil {
+			return m, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.Name)
+		}
+		m.view.SetContent(string(out))
 	case SizeMsg:
 		m.view = viewport.New(msg.Width, msg.Height)
 		m.view.SetContent(m.content)

@@ -31,6 +31,7 @@ func NewApp() *App {
 			menu:    newMenuModel(menuDef),
 			detail:  newDetailModel().SetContent("DETAILED VIEW"),
 			status:  newStatusModel(theme).SetContent("STATUS MESSAGE VIEW"),
+			file:    FileModel{},
 		},
 	}
 	a.model.app = a
