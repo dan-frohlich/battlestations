@@ -20,7 +20,11 @@ type mainModel struct {
 }
 
 func (m mainModel) Init() tea.Cmd {
-	return nil
+	return tea.Batch(
+		m.menu.Init(),
+		m.detail.Init(),
+		m.status.Init(),
+	)
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -32,19 +36,16 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Is it a key press?
 	case tea.KeyMsg:
-
 		// what key was pressed?
 		switch msg.String() {
 
 		//  exit the program.
-		case "ctrl+c", "esc":
+		case "ctrl+c":
 			return m, tea.Quit
 		case "tab":
-			m.focus = m.focus.next()
-			return m, nil
+			return m, makeFocusCmd(m.focus.next())
 		case "shift+tab":
-			m.focus = m.focus.prev()
-			return m, nil
+			return m, makeFocusCmd(m.focus.prev())
 
 			// // The "up" and "k" keys move the cursor up
 			// case "up", "k":
@@ -56,24 +57,96 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// // the selected state for the item that the cursor is pointing at.
 			// case "enter", " ":
 		}
+	case panel:
+		next := msg
+		m.focus = next
+		return m, nil
 	case usecaseView:
 		//we need to transition from m.usecase to msg
-		sm, c := m.status.Update(fmt.Sprintf("transitioning from view %s to view %s", m.usecase, msg))
+		switch msg {
+		case newCharView:
+			cmds = append(cmds,
+				newCmd(NewMenuMessage{
+					title: "Create Character",
+					keys: []string{
+						"main menu",
+						"set stats",
+						"set species",
+						"set name",
+						"set profession",
+						"set basic gear",
+					},
+					options: map[string]tea.Cmd{
+						"main menu":      makeUsecaseTransition(mainView),
+						"set stats":      makeUsecaseTransition(setStatsSubView),
+						"set species":    makeUsecaseTransition(setSpeciesSubView),
+						"set name":       makeUsecaseTransition(setNameSubView),
+						"set profession": makeUsecaseTransition(setProfessionSubView),
+						"set basic gear": makeUsecaseTransition(setBasicGearSubView),
+					}}))
+			m.detail = m.detail.SetContent("Character Creation Details")
+			m.usecase = msg
+		case mainView:
+			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
+			cmds = append(cmds, newCmd(
+				NewMenuMessage{
+					title: "Main Menu",
+					keys:  []string{"Create Character", "Load Character", "Quit"},
+					options: map[string]tea.Cmd{
+						"Create Character": makeUsecaseTransition(newCharView),
+						"Load Character":   makeUsecaseTransition(loadCharSubView),
+						"Quit":             tea.Quit},
+				}))
+			m.detail = m.detail.SetContent("Main View Details")
+			m.usecase = msg
+		case loadCharSubView:
+			cmds = append(cmds,
+				newCmd(NewMenuMessage{
+					title: "Load Character",
+					keys: []string{
+						"main menu",
+					},
+					options: map[string]tea.Cmd{
+						"main menu": makeUsecaseTransition(mainView),
+						"Quit":      tea.Quit,
+					}}))
+			// cmds = append(cmds, makeFocusCmd(detailPanel))
+			m.detail = m.detail.SetContent("Load Character Details")
+			m.usecase = msg
+		default:
+			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", m.usecase, msg)))
+			cmds = append(cmds, makeUsecaseTransition(m.usecase)) //go back!
+			return m, tea.Batch(cmds...)
+		}
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("transitioning from view %s to view %s", m.usecase, msg)))
+		return m, tea.Batch(cmds...)
+	case NewMenuMessage:
+		sm, c := m.menu.Update(msg)
+		if mm, ok := sm.(menuModel); ok {
+			m.menu = mm
+			return m, c
+		}
+	case statusMsg, debugMsg, infoMsg, warnMsg, errorMsg:
+		sm, c := m.status.Update(msg)
 		if mm, ok := sm.(statusModel); ok {
 			m.status = mm
-			cmds = append(cmds, c)
+			return m, c
 		}
 	case tea.WindowSizeMsg:
 		menuWidth := m.menu.DesiredWidth()
-		menuResize := SizeMessage{
+		if maximizeMenu(m.usecase) {
+			menuWidth = msg.Width - 2
+		}
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("menu desired width: %d", menuWidth)))
+		menuResize := SizeMsg{
 			Width:  menuWidth,
+			Height: msg.Height - 9,
+		}
+		detailResize := SizeMsg{
+			Width:  msg.Width - menuWidth - 23,
 			Height: msg.Height - 8,
 		}
-		detailResize := SizeMessage{
-			Width:  msg.Width - menuWidth - 8,
-			Height: msg.Height - 8,
-		}
-		statusResize := SizeMessage{
+		statusResize := SizeMsg{
 			Width:  msg.Width - 4,
 			Height: 4,
 		}
@@ -92,8 +165,11 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = mm
 			cmds = append(cmds, c)
 		}
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
 		return m, tea.Batch(cmds...)
 	}
+
 	switch m.focus {
 	case menuPanel:
 		sm, c := m.menu.Update(msg)
@@ -116,6 +192,10 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func maximizeMenu(v usecaseView) bool {
+	return v == loadCharSubView
 }
 
 var (

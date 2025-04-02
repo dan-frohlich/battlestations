@@ -5,6 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
 )
 
 type App struct {
@@ -12,17 +13,27 @@ type App struct {
 }
 
 func NewApp() *App {
+	theme := huh.ThemeCharm()
+
+	menuDef := NewMenuMessage{
+		title: "Main Menu",
+		keys:  []string{"Create Character", "Load Character", "Quit"},
+		options: map[string]tea.Cmd{
+			"Create Character": makeUsecaseTransition(newCharView),
+			"Load Character":   makeUsecaseTransition(loadCharSubView),
+			"Quit":             tea.Quit},
+	}
+
 	a := &App{
 		model: &mainModel{
 			focus:   menuPanel,
 			usecase: mainView,
-			menu:    newMenuModel().SetContent("MENU VIEW\n* Quit [esc]"),
+			menu:    newMenuModel(menuDef),
 			detail:  newDetailModel().SetContent("DETAILED VIEW"),
-			status:  newStatusModel().SetContent("STATUS MESSAGE VIEW"),
+			status:  newStatusModel(theme).SetContent("STATUS MESSAGE VIEW"),
 		},
 	}
 	a.model.app = a
-
 	return a
 }
 

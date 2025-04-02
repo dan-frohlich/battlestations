@@ -62,6 +62,7 @@ generate:
 
 .PHONY: lint
 lint: 
+	find . -name "*.go" -exec gofmt -w {} \;
 	golangci-lint run
 
 .PHONY: check
