@@ -2,6 +2,8 @@ package tui
 
 import (
 	"fmt"
+	"sync"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -21,16 +23,41 @@ type mainModel struct {
 	file    FileModel
 }
 
+var onStart = sync.Once{}
+
 func (m mainModel) Init() tea.Cmd {
-	return tea.Batch(
-		m.menu.Init(),
-		m.detail.Init(),
-		m.status.Init(),
-		makeUsecaseTransition(mainView),
-	)
+	var cmds []tea.Cmd
+	cmds = append(cmds, m.menu.Init())
+	cmds = append(cmds, m.detail.Init())
+	cmds = append(cmds, m.status.Init())
+	onStart.Do(func() {
+		cmds = append(cmds, makeUsecaseTransition(mainView))
+	})
+	return tea.Batch(cmds...)
+}
+
+func (m mainModel) eventLog(msg tea.Msg) {
+
+	ts := time.Now().Format(time.RFC3339Nano)
+	var logMsg string
+	switch tp := msg.(type) {
+	case panel, usecaseView, SizeMsg, ContentMsg, loadCharFileMsg:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
+	case statusMsg:
+		//skip
+	case model.Character:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.Name)
+	case NewMenuMessage:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.title)
+	default:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %#[2]v\n", ts, msg)
+	}
+	m.status.log(logMsg)
+
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.eventLog(msg)
 	var (
 		cmds []tea.Cmd
 	)
@@ -43,12 +70,14 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		//  exit the program.
-		case "ctrl+c":
+		case "f9":
 			return m, tea.Quit
 		case "tab":
 			return m, makeFocusCmd(m.focus.next())
 		case "shift+tab":
 			return m, makeFocusCmd(m.focus.prev())
+			// default:
+			// 	return m, makeStatusCmd(debugLevel, "keypress: "+msg.String())
 		}
 	case loadCharFileMsg:
 		l, c := m.file.Update(msg)

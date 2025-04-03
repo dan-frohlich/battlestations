@@ -86,7 +86,7 @@ func makeStatusCmd(l statusLevel, s string) tea.Cmd {
 	)
 	i := 1
 	if _, file, line, ok := runtime.Caller(i); ok {
-		for strings.HasSuffix(file, "messages.go") {
+		for strings.HasSuffix(file, "messages.go") && ok {
 			i++
 			_, file, line, ok = runtime.Caller(i)
 		}

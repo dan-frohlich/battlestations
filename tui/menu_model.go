@@ -22,15 +22,8 @@ type menuModel struct {
 	usecase usecaseView
 }
 
-func newMenuModel(msg NewMenuMessage) menuModel {
-	// s := huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
-
-	return menuModel{
-		// title: msg.title,
-		// form:  huh.NewForm(huh.NewGroup(s)).WithShowHelp(true),
-		// sel:   s,
-		// msg:   msg,
-	}
+func newMenuModel() menuModel {
+	return menuModel{}
 }
 
 func (m menuModel) DesiredWidth() (w int) {
@@ -57,7 +50,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 		m.msg = msg
 		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
 		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true)
-		cmd = tea.WindowSize()
+		// cmd = tea.WindowSize()
 		cmds = append(cmds, cmd, m.form.Init())
 	case SizeMsg:
 		if m.form != nil {
@@ -82,16 +75,20 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 		}
 	// case filepicker.MsgFileChosen:
 	default:
-		l, cmd = m.form.Update(msg)
-		if lm, ok := l.(*huh.Form); ok {
-			m.form = lm
+		if m.form != nil {
+			l, cmd = m.form.Update(msg)
+			if lm, ok := l.(*huh.Form); ok {
+				m.form = lm
+			}
+			cmds = append(cmds, cmd)
 		}
-		cmds = append(cmds, cmd)
 	}
 	if m.form != nil && m.form.State == huh.StateCompleted {
 		switch m.usecase {
 		case loadCharSubView:
 			cmds = append(cmds, newCmd(loadCharFileMsg(fmt.Sprintf("%s", m.file.GetValue()))))
+			m.form = nil
+			m.file = nil
 		default:
 			var sv string
 			m.sel.Value(&sv)
@@ -100,7 +97,8 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			if actionCmd, ok := m.msg.options[sv]; ok && actionCmd != nil {
 				cmds = append(cmds, actionCmd, tea.WindowSize())
 			}
-			// m.form.State = huh.StateNormal
+			m.form = nil
+			m.sel = nil
 		}
 	}
 	return m, tea.Batch(cmds...)
@@ -110,19 +108,21 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 func (m menuModel) View() string {
 	switch m.usecase {
 	case loadCharSubView:
-		if m.file.GetValue() != "" {
-			return fmt.Sprintf("Selected: %s", m.file.GetValue())
+		if m.file != nil {
+			if m.file.GetValue() != "" {
+				return fmt.Sprintf("Selected: %s", m.file.GetValue())
+			}
+			return m.file.View()
 		}
-		return m.file.View()
-
 	default:
 		if m.form != nil {
 			if m.form.State == huh.StateCompleted {
-				var sv string
-				m.sel.Value(&sv)
-				return sv
+				if m.sel != nil {
+					var sv string
+					m.sel.Value(&sv)
+					return sv
+				}
 			}
-
 			return m.form.View()
 		}
 	}

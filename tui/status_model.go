@@ -71,7 +71,7 @@ func (m statusModel) handleStatusUpdate(sm statusMsg) statusModel {
 	default:
 		s = statusStyle.Render(sm.String())
 	}
-	m.log(fmt.Sprintf("%s [%s] - %s", sm.ts.Format(time.RFC3339Nano), sm.caller, s))
+	m.log(fmt.Sprintf("[%s] - [%s] - %s", sm.ts.Format(time.RFC3339Nano), sm.caller, s))
 	for _, s := range sm.callstack {
 		m.log(s)
 	}
@@ -89,11 +89,11 @@ func (m statusModel) handleStatusUpdate(sm statusMsg) statusModel {
 
 func (m statusModel) log(msg string) {
 
-	file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	// Write the string to the file
 	_, _ = file.WriteString(msg + "\n")
 }

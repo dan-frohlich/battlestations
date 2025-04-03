@@ -15,20 +15,11 @@ type App struct {
 func NewApp() *App {
 	theme := huh.ThemeCharm()
 
-	menuDef := NewMenuMessage{
-		title: "Main Menu",
-		keys:  []string{"Create Character", "Load Character", "Quit"},
-		options: map[string]tea.Cmd{
-			"Create Character": makeUsecaseTransition(newCharView),
-			"Load Character":   makeUsecaseTransition(loadCharSubView),
-			"Quit":             tea.Quit},
-	}
-
 	a := &App{
 		model: &mainModel{
 			focus:   menuPanel,
 			usecase: mainView,
-			menu:    newMenuModel(menuDef),
+			menu:    newMenuModel(),
 			detail:  newDetailModel().SetContent("DETAILED VIEW"),
 			status:  newStatusModel(theme).SetContent("STATUS MESSAGE VIEW"),
 			file:    FileModel{},
