@@ -11,8 +11,7 @@ import (
 var _ tea.Model = &detailModel{}
 
 type detailModel struct {
-	view    viewport.Model
-	content string
+	view viewport.Model
 }
 
 func newDetailModel() detailModel {
@@ -22,7 +21,6 @@ func newDetailModel() detailModel {
 }
 
 func (m detailModel) SetContent(content string) detailModel {
-	m.content = content
 	m.view.SetContent(content)
 	return m
 }
@@ -43,8 +41,9 @@ func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.view.SetContent(string(out))
 	case SizeMsg:
+		c := m.view.View()
 		m.view = viewport.New(msg.Width, msg.Height)
-		m.view.SetContent(m.content)
+		m.view.SetContent(c)
 	}
 	return m, nil
 

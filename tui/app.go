@@ -20,8 +20,8 @@ func NewApp() *App {
 			focus:   menuPanel,
 			usecase: mainView,
 			menu:    newMenuModel(),
-			detail:  newDetailModel().SetContent("DETAILED VIEW"),
-			status:  newStatusModel(theme).SetContent("STATUS MESSAGE VIEW"),
+			detail:  newDetailModel(),
+			status:  newStatusModel(theme),
 			file:    FileModel{},
 		},
 	}

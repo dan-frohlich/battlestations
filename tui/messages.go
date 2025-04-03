@@ -73,7 +73,7 @@ func newCmd(message tea.Msg) tea.Cmd {
 }
 
 func makeUsecaseTransition(v usecaseView) tea.Cmd {
-	return tea.Batch(newCmd(v), makeStatusCmd(infoLevel, "you selected "+v.String()))
+	return tea.Batch(newCmd(v), makeStatusCmd(debugLevel, "you selected "+v.String()))
 }
 
 func (nmm NewMenuMessage) items() (result []string) {

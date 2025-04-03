@@ -52,7 +52,7 @@ func (m mainModel) eventLog(msg tea.Msg) {
 	default:
 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %#[2]v\n", ts, msg)
 	}
-	m.status.log(logMsg)
+	log(logMsg)
 
 }
 
@@ -122,7 +122,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						"set profession": makeUsecaseTransition(setProfessionSubView),
 						"set basic gear": makeUsecaseTransition(setBasicGearSubView),
 					}}))
-			m.detail = m.detail.SetContent("Character Creation Details")
 			m.usecase = msg
 		case mainView:
 			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
@@ -135,10 +134,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						"Load Character":   makeUsecaseTransition(loadCharSubView),
 						"Quit":             tea.Quit},
 				}))
-			m.detail = m.detail.SetContent("Main View Details")
 			m.usecase = msg
 		case loadCharSubView:
-			m.detail = m.detail.SetContent("Load Character Details")
 			m.usecase = msg
 		case manageCharView:
 			cmds = append(cmds, newCmd(NewMenuMessage{
