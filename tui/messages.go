@@ -7,6 +7,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/dan-frohlich/battlestations/character/model"
 )
 
 type ContentMsg string
@@ -64,7 +65,12 @@ type newCharFileMsg struct{}
 type NewMenuMessage struct {
 	title   string
 	options map[string]tea.Cmd
-	keys    []string
+	keys    []any
+}
+
+type menuItem struct {
+	display string
+	visible func(model.Character) bool
 }
 
 func newCmd(message tea.Msg) tea.Cmd {
@@ -77,8 +83,19 @@ func makeUsecaseTransition(v usecaseView) tea.Cmd {
 	return tea.Batch(newCmd(v), makeStatusCmd(debugLevel, "you selected "+v.String()))
 }
 
-func (nmm NewMenuMessage) items() (result []string) {
-	return nmm.keys
+func (nmm NewMenuMessage) items(c model.Character) (result []string) {
+	result = make([]string, 0, len(nmm.keys))
+	for _, key := range nmm.keys {
+		switch key := key.(type) {
+		case menuItem:
+			if key.visible == nil || key.visible(c) {
+				result = append(result, key.display)
+			}
+		case string:
+			result = append(result, key)
+		}
+	}
+	return result
 }
 
 func makeStatusCmd(l statusLevel, s string) tea.Cmd {

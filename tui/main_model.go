@@ -75,6 +75,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if ll, ok := l.(detailModel); ok {
 			m.detail = ll
 		}
+		cmds = append(cmds, c)
+		l, c = m.menu.Update(msg)
+		if ll, ok := l.(menuModel); ok {
+			m.menu = ll
+		}
+		cmds = append(cmds, c)
 		v := manageCharView
 		if msg.Name == "" ||
 			msg.Rank == 0 ||
@@ -85,7 +91,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			len(msg.SpecialAbilities) < 1 {
 			v = newCharView
 		}
-		return m, tea.Batch(c, makeUsecaseTransition(v))
+		cmds = append(cmds, makeUsecaseTransition(v))
+		return m, tea.Batch(cmds...)
 	case panel:
 		m.focus = msg
 		return m, nil

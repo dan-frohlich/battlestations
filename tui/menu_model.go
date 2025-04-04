@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
+	"github.com/dan-frohlich/battlestations/character/model"
 )
 
 // assert interface compliance
@@ -20,6 +21,7 @@ type menuModel struct {
 	file    *huh.FilePicker
 	msg     NewMenuMessage
 	usecase usecaseView
+	c       model.Character
 }
 
 func newMenuModel() menuModel {
@@ -46,9 +48,11 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	var cmds []tea.Cmd
 	var l tea.Model
 	switch msg := msg.(type) {
+	case model.Character:
+		m.c = msg
 	case NewMenuMessage:
 		m.msg = msg
-		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items()...)...).Title(msg.title)
+		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items(m.c)...)...).Title(msg.title)
 		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true)
 		// cmd = tea.WindowSize()
 		cmds = append(cmds, cmd, m.form.Init())
@@ -65,7 +69,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			cmds = append(cmds, newCmd(
 				NewMenuMessage{
 					title: "Main Menu",
-					keys:  []string{"Create Character", "Load Character", "Quit"},
+					keys:  []any{"Create Character", "Load Character", "Quit"},
 					options: map[string]tea.Cmd{
 						"Create Character": newCmd(newCharFileMsg{}),
 						"Load Character":   makeUsecaseTransition(loadCharSubView),
@@ -76,13 +80,13 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			cmds = append(cmds,
 				newCmd(NewMenuMessage{
 					title: "Create Character",
-					keys: []string{
+					keys: []any{
 						"main menu",
-						"set stats",
-						"set species",
-						"set name",
-						"set profession",
-						"set basic gear",
+						menuItem{display: "set stats", visible: func(c model.Character) bool { return m.c.StartingSkillSet == "" }},
+						menuItem{display: "set species", visible: func(c model.Character) bool { return m.c.Species.Name == "" }},
+						menuItem{display: "set name", visible: func(c model.Character) bool { return m.c.Name == "" }},
+						menuItem{display: "set profession", visible: func(c model.Character) bool { return m.c.Profession == "" }},
+						menuItem{display: "set basic gear", visible: func(c model.Character) bool { return len(m.c.Gear) == 0 }},
 					},
 					options: map[string]tea.Cmd{
 						"main menu":      makeUsecaseTransition(mainView),
@@ -107,7 +111,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 		case manageCharView:
 			cmds = append(cmds, newCmd(NewMenuMessage{
 				title: "Manage Character",
-				keys: []string{
+				keys: []any{
 					"main menu",
 					"preview",
 					"print",
