@@ -79,6 +79,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// default:
 			// 	return m, makeStatusCmd(debugLevel, "keypress: "+msg.String())
 		}
+	case newCharFileMsg:
+		l, c := m.file.Update(msg)
+		if ll, ok := l.(FileModel); ok {
+			m.file = ll
+		}
+		return m, c
 	case loadCharFileMsg:
 		l, c := m.file.Update(msg)
 		if ll, ok := l.(FileModel); ok {
@@ -90,7 +96,17 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if ll, ok := l.(detailModel); ok {
 			m.detail = ll
 		}
-		return m, tea.Batch(c, makeUsecaseTransition(manageCharView))
+		v := manageCharView
+		if msg.Name == "" ||
+			msg.Rank == 0 ||
+			msg.StartingSkillSet == "" ||
+			msg.Profession == "" ||
+			msg.Species.Name == "" ||
+			len(msg.Gear) < 1 ||
+			len(msg.SpecialAbilities) < 1 {
+			v = newCharView
+		}
+		return m, tea.Batch(c, makeUsecaseTransition(v))
 	case panel:
 		m.focus = msg
 		return m, nil
@@ -104,47 +120,9 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch msg {
 		case newCharView:
-			cmds = append(cmds,
-				newCmd(NewMenuMessage{
-					title: "Create Character",
-					keys: []string{
-						"main menu",
-						"set stats",
-						"set species",
-						"set name",
-						"set profession",
-						"set basic gear",
-					},
-					options: map[string]tea.Cmd{
-						"main menu":      makeUsecaseTransition(mainView),
-						"set stats":      makeUsecaseTransition(setStatsSubView),
-						"set species":    makeUsecaseTransition(setSpeciesSubView),
-						"set name":       makeUsecaseTransition(setNameSubView),
-						"set profession": makeUsecaseTransition(setProfessionSubView),
-						"set basic gear": makeUsecaseTransition(setBasicGearSubView),
-					}}))
 		case mainView:
 		case loadCharSubView:
 		case manageCharView:
-			cmds = append(cmds, newCmd(NewMenuMessage{
-				title: "Manage Character",
-				keys: []string{
-					"main menu",
-					"preview",
-					"print",
-					"save",
-					"aftermath",
-					"purchase gear",
-				},
-				options: map[string]tea.Cmd{
-					"main menu":     makeUsecaseTransition(mainView),
-					"preview":       makeUsecaseTransition(charPreviewSubView),
-					"print":         makeUsecaseTransition(printCharSubView),
-					"save":          makeUsecaseTransition(saveCharSubView),
-					"aftermath":     makeUsecaseTransition(missionAftermathView),
-					"purchase gear": makeUsecaseTransition(purchaseGearSubView),
-				}}))
-			cmds = append(cmds, tea.WindowSize())
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", m.usecase, msg)))
 			cmds = append(cmds, makeUsecaseTransition(m.usecase)) //go back!
@@ -169,7 +147,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if maximizeMenu(m.usecase) {
 			menuWidth = msg.Width - 2
 		}
-		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("menu desired width: %d", menuWidth)))
 		menuResize := SizeMsg{
 			Width:  menuWidth,
 			Height: msg.Height - 9,

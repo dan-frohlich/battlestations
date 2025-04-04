@@ -67,7 +67,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 					title: "Main Menu",
 					keys:  []string{"Create Character", "Load Character", "Quit"},
 					options: map[string]tea.Cmd{
-						"Create Character": makeUsecaseTransition(newCharView),
+						"Create Character": newCmd(newCharFileMsg{}),
 						"Load Character":   makeUsecaseTransition(loadCharSubView),
 						"Quit":             tea.Quit},
 				}))

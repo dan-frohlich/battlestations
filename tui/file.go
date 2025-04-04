@@ -22,6 +22,8 @@ func (f FileModel) Init() tea.Cmd {
 func (f FileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
+	case newCharFileMsg:
+		cmds = append(cmds, newCmd(model.Character{}), makeStatusCmd(infoLevel, "created character"))
 	case loadCharFileMsg:
 		b, e := os.ReadFile(string(msg))
 		if e != nil {

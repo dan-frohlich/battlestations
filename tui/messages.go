@@ -59,6 +59,7 @@ func (sm statusMsg) String() string {
 // type errorMsg string
 
 type loadCharFileMsg string
+type newCharFileMsg struct{}
 
 type NewMenuMessage struct {
 	title   string
