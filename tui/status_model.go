@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/dan-frohlich/battlestations/character/model"
 )
 
 // assert interface compliance
@@ -43,17 +44,13 @@ func (m statusModel) Init() tea.Cmd {
 func (m statusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
-
 	case SizeMsg:
-		m.view = viewport.New(msg.Width, msg.Height)
-		m.view.SetContent(m.content)
-		// cmds = append(cmds,
-		// 	makeStatusCmd(debugLevel, "debug"),
-		// 	makeStatusCmd(infoLevel, "info"),
-		// 	makeStatusCmd(warnLevel, "warn"),
-		// 	makeStatusCmd(errorLevel, "error"))
+		m.view.Width = msg.Width
+		m.view.Height = msg.Height
 	case statusMsg:
 		m = m.handleStatusUpdate(msg)
+	case tea.KeyMsg:
+		viewportControl(&m.view, msg)
 	}
 	return m, tea.Batch(cmds...)
 }
@@ -98,6 +95,28 @@ func log(msg string) {
 	_, _ = file.WriteString(msg + "\n")
 }
 
+func eventLog(msg tea.Msg) {
+
+	ts := time.Now().Format(time.RFC3339Nano)
+	var logMsg string
+	switch tp := msg.(type) {
+	case panel, usecaseView, SizeMsg, ContentMsg, loadCharFileMsg:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
+	case tea.KeyMsg:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
+	case statusMsg:
+		//skip
+	case model.Character:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.Name)
+	case NewMenuMessage:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.title)
+	default:
+		logMsg = fmt.Sprintf("[%s] - [%[2]T] %#[2]v\n", ts, msg)
+	}
+	log(logMsg)
+
+}
+
 var (
 	gray = lipgloss.AdaptiveColor{Light: "#DDDDDD", Dark: "#444444"}
 	// green    = lipgloss.AdaptiveColor{Dark: "#50fa7b"}
@@ -136,10 +155,5 @@ var (
 
 // View implements tea.Model.
 func (m statusModel) View() string {
-	s := m.view.View()
-	z := strings.Split(s, "\n")
-	if len(z) > 4 {
-		return strings.Join(z[len(z)-4:], "\n")
-	}
-	return s
+	return m.view.View()
 }

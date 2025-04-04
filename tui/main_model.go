@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 	"sync"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -36,28 +35,8 @@ func (m mainModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m mainModel) eventLog(msg tea.Msg) {
-
-	ts := time.Now().Format(time.RFC3339Nano)
-	var logMsg string
-	switch tp := msg.(type) {
-	case panel, usecaseView, SizeMsg, ContentMsg, loadCharFileMsg:
-		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
-	case statusMsg:
-		//skip
-	case model.Character:
-		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.Name)
-	case NewMenuMessage:
-		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.title)
-	default:
-		logMsg = fmt.Sprintf("[%s] - [%[2]T] %#[2]v\n", ts, msg)
-	}
-	log(logMsg)
-
-}
-
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.eventLog(msg)
+	// eventLog(msg)
 	var (
 		cmds []tea.Cmd
 	)
@@ -111,6 +90,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.focus = msg
 		return m, nil
 	case usecaseView:
+		prevView := m.usecase
 		m.usecase = msg
 		//we need to transition from m.usecase to msg
 		l, c := m.menu.Update(msg)
@@ -124,8 +104,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case loadCharSubView:
 		case manageCharView:
 		default:
-			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", m.usecase, msg)))
-			cmds = append(cmds, makeUsecaseTransition(m.usecase)) //go back!
+			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", prevView, msg)))
+			if prevView == msg {
+				cmds = append(cmds, makeUsecaseTransition(mainView)) //go back!
+				return m, tea.Batch(cmds...)
+			}
+			cmds = append(cmds, makeUsecaseTransition(prevView)) //go back!
 			return m, tea.Batch(cmds...)
 		}
 		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("transitioning from view %s to view %s", m.usecase, msg)))
