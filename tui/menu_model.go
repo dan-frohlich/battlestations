@@ -60,7 +60,39 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	case usecaseView:
 		m.usecase = msg
 		switch msg {
-		case manageCharView:
+		case mainView:
+			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
+			cmds = append(cmds, newCmd(
+				NewMenuMessage{
+					title: "Main Menu",
+					keys:  []string{"Create Character", "Load Character", "Quit"},
+					options: map[string]tea.Cmd{
+						"Create Character": makeUsecaseTransition(newCharView),
+						"Load Character":   makeUsecaseTransition(loadCharSubView),
+						"Quit":             tea.Quit},
+				}))
+			cmds = append(cmds, tea.WindowSize())
+		case newCharView:
+			cmds = append(cmds,
+				newCmd(NewMenuMessage{
+					title: "Create Character",
+					keys: []string{
+						"main menu",
+						"set stats",
+						"set species",
+						"set name",
+						"set profession",
+						"set basic gear",
+					},
+					options: map[string]tea.Cmd{
+						"main menu":      makeUsecaseTransition(mainView),
+						"set stats":      makeUsecaseTransition(setStatsSubView),
+						"set species":    makeUsecaseTransition(setSpeciesSubView),
+						"set name":       makeUsecaseTransition(setNameSubView),
+						"set profession": makeUsecaseTransition(setProfessionSubView),
+						"set basic gear": makeUsecaseTransition(setBasicGearSubView),
+					}}))
+			cmds = append(cmds, tea.WindowSize())
 		case loadCharSubView:
 			cd, _ := os.Getwd()
 			m.file = huh.NewFilePicker().
@@ -72,8 +104,28 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 				AllowedTypes([]string{".yaml", ".yml"})
 			m.form = huh.NewForm(huh.NewGroup(m.file)).WithShowHelp(true)
 			cmds = append(cmds, m.file.Init(), tea.WindowSize())
+		case manageCharView:
+			cmds = append(cmds, newCmd(NewMenuMessage{
+				title: "Manage Character",
+				keys: []string{
+					"main menu",
+					"preview",
+					"print",
+					"save",
+					"aftermath",
+					"purchase gear",
+				},
+				options: map[string]tea.Cmd{
+					"main menu":     makeUsecaseTransition(mainView),
+					"preview":       makeUsecaseTransition(charPreviewSubView),
+					"print":         makeUsecaseTransition(printCharSubView),
+					"save":          makeUsecaseTransition(saveCharSubView),
+					"aftermath":     makeUsecaseTransition(missionAftermathView),
+					"purchase gear": makeUsecaseTransition(purchaseGearSubView),
+				}}))
+			cmds = append(cmds, tea.WindowSize())
 		}
-	// case filepicker.MsgFileChosen:
+		// case filepicker.MsgFileChosen:
 	default:
 		if m.form != nil {
 			l, cmd = m.form.Update(msg)

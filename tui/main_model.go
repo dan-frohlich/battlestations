@@ -95,6 +95,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.focus = msg
 		return m, nil
 	case usecaseView:
+		m.usecase = msg
 		//we need to transition from m.usecase to msg
 		l, c := m.menu.Update(msg)
 		cmds = append(cmds, c)
@@ -122,21 +123,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						"set profession": makeUsecaseTransition(setProfessionSubView),
 						"set basic gear": makeUsecaseTransition(setBasicGearSubView),
 					}}))
-			m.usecase = msg
 		case mainView:
-			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
-			cmds = append(cmds, newCmd(
-				NewMenuMessage{
-					title: "Main Menu",
-					keys:  []string{"Create Character", "Load Character", "Quit"},
-					options: map[string]tea.Cmd{
-						"Create Character": makeUsecaseTransition(newCharView),
-						"Load Character":   makeUsecaseTransition(loadCharSubView),
-						"Quit":             tea.Quit},
-				}))
-			m.usecase = msg
 		case loadCharSubView:
-			m.usecase = msg
 		case manageCharView:
 			cmds = append(cmds, newCmd(NewMenuMessage{
 				title: "Manage Character",
@@ -156,7 +144,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					"aftermath":     makeUsecaseTransition(missionAftermathView),
 					"purchase gear": makeUsecaseTransition(purchaseGearSubView),
 				}}))
-			m.usecase = msg
 			cmds = append(cmds, tea.WindowSize())
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", m.usecase, msg)))
