@@ -134,7 +134,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 				keys: []any{
 					"main menu",
 					"preview",
-					"print",
+					"export to pdf",
 					"save",
 					"aftermath",
 					"purchase gear",
@@ -142,12 +142,25 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 				options: map[string]tea.Cmd{
 					"main menu":     makeUsecaseTransition(mainView),
 					"preview":       makeUsecaseTransition(charPreviewSubView),
-					"print":         makeUsecaseTransition(printCharSubView),
+					"export to pdf": makeUsecaseTransition(exportCharToPDFSubView),
 					"save":          makeUsecaseTransition(saveCharSubView),
 					"aftermath":     makeUsecaseTransition(missionAftermathView),
 					"purchase gear": makeUsecaseTransition(purchaseGearSubView),
 				}}))
 			cmds = append(cmds, tea.WindowSize())
+		case exportCharToPDFSubView:
+			//TODO use manager to print (export) the character
+			//* use the manager to export the character to pdf
+
+			// OPEN QUESTIONS
+			//* Q: is there a way to open a model dialog in bubbletea?
+			//* A: possibly! SEE THIS: https://github.com/rmhubbert/bubbletea-overlay/tree/main/example
+			//* Q: ask the user to name the export file or just use a default?
+			//* A: TODO
+			//* Q: ask the user to select the target folder or just use a default?
+			//* A: TODO
+			//* Q: ask the user if we should open the pdf with the default app or just do it by default?
+			//* A: TODO
 		}
 		// case filepicker.MsgFileChosen:
 	default:

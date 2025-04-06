@@ -17,7 +17,7 @@ const (
 	manageCharView
 	saveCharSubView
 	charPreviewSubView
-	printCharSubView
+	exportCharToPDFSubView
 	missionAftermathView
 	purchaseGearSubView
 	addPrestigeSubView
@@ -51,7 +51,7 @@ func (u usecaseView) String() string {
 		return "save_char_usecase"
 	case charPreviewSubView:
 		return "char_preview_usecase"
-	case printCharSubView:
+	case exportCharToPDFSubView:
 		return "print_char_usecase"
 	case missionAftermathView:
 		return "mission_aftermath_usecase"
@@ -111,17 +111,17 @@ var _ = map[usecaseView]map[usecaseView]struct{}{
 		manageCharView: _z,
 	},
 	manageCharView: {
-		mainView:             _z,
-		charPreviewSubView:   _z,
-		printCharSubView:     _z,
-		saveCharSubView:      _z,
-		missionAftermathView: _z,
-		purchaseGearSubView:  _z,
+		mainView:               _z,
+		charPreviewSubView:     _z,
+		exportCharToPDFSubView: _z,
+		saveCharSubView:        _z,
+		missionAftermathView:   _z,
+		purchaseGearSubView:    _z,
 	},
 	charPreviewSubView: {
 		manageCharView: _z,
 	},
-	printCharSubView: {
+	exportCharToPDFSubView: {
 		manageCharView: _z,
 	},
 	saveCharSubView: {
