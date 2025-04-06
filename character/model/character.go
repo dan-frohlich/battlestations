@@ -49,6 +49,7 @@ type Character struct {
 	Species          Species            `yaml:"species"`
 	SpecialAbilities SpecialAbilities   `yaml:"special_abilities"`
 	Gear             []GearRef          `yaml:"gear"`
+	// modified         bool
 }
 
 func (c Character) HP() int {

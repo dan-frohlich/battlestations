@@ -18,7 +18,7 @@ type SizeMsg struct {
 }
 
 func (sm SizeMsg) String() string {
-	return fmt.Sprintf("{%d,%d}", sm.Width, sm.Height)
+	return fmt.Sprintf("{w:%d,h:%d}", sm.Width, sm.Height)
 }
 
 type statusLevel int
@@ -58,7 +58,7 @@ func (sm statusMsg) String() string {
 // type infoMsg string
 // type warnMsg string
 // type errorMsg string
-
+type displayHelpMsg string
 type loadCharFileMsg string
 type newCharFileMsg struct{}
 

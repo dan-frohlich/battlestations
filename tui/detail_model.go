@@ -39,6 +39,8 @@ func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.Name)
 		}
 		m.view.SetContent(string(out))
+	case displayHelpMsg:
+		m.view.SetContent(string(msg))
 	case SizeMsg:
 		m.view.Width = msg.Width
 		m.view.Height = msg.Height

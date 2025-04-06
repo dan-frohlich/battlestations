@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/dan-frohlich/battlestations/character"
 	"github.com/dan-frohlich/battlestations/character/model"
 )
 
@@ -20,6 +21,7 @@ type mainModel struct {
 	detail  detailModel
 	status  statusModel
 	file    FileModel
+	manager *character.Manager
 }
 
 var onStart = sync.Once{}
@@ -30,9 +32,20 @@ func (m mainModel) Init() tea.Cmd {
 	cmds = append(cmds, m.detail.Init())
 	cmds = append(cmds, m.status.Init())
 	onStart.Do(func() {
-		cmds = append(cmds, makeUsecaseTransition(mainView))
+		cmds = append(cmds, makeUsecaseTransition(mainView), makeUsecaseTransition(mainHelpView))
 	})
 	return tea.Batch(cmds...)
+}
+
+func (m mainModel) charNeedsBasics() bool {
+	c := m.manager.GetCharacter()
+	return c.Name == "" ||
+		c.Rank == 0 ||
+		c.StartingSkillSet == "" ||
+		c.Profession == "" ||
+		c.Species.Name == "" ||
+		len(c.Gear) < 1 ||
+		len(c.SpecialAbilities) < 1
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -58,6 +71,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// default:
 			// 	return m, makeStatusCmd(debugLevel, "keypress: "+msg.String())
 		}
+	case displayHelpMsg:
+		l, c := m.detail.Update(msg)
+		if ll, ok := l.(detailModel); ok {
+			m.detail = ll
+		}
+		return m, c
 	case newCharFileMsg:
 		l, c := m.file.Update(msg)
 		if ll, ok := l.(FileModel); ok {
@@ -71,6 +90,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, c
 	case model.Character:
+		m.manager.SetCharacter(msg)
 		l, c := m.detail.Update(msg)
 		if ll, ok := l.(detailModel); ok {
 			m.detail = ll
@@ -82,13 +102,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		cmds = append(cmds, c)
 		v := manageCharView
-		if msg.Name == "" ||
-			msg.Rank == 0 ||
-			msg.StartingSkillSet == "" ||
-			msg.Profession == "" ||
-			msg.Species.Name == "" ||
-			len(msg.Gear) < 1 ||
-			len(msg.SpecialAbilities) < 1 {
+		if m.charNeedsBasics() {
 			v = newCharView
 		}
 		cmds = append(cmds, makeUsecaseTransition(v))
@@ -110,6 +124,31 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case mainView:
 		case loadCharSubView:
 		case manageCharView:
+		case mainHelpView:
+			l, c := m.menu.Update(msg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(menuModel); ok {
+				m.menu = ll
+			}
+			helpMsg := displayHelpMsg(
+				`Welcome to the Battlestations Character Manager
+ * to change focus: 'tab' or 'shift+tab'
+ * to scroll up in a viewport: 'up', '8', 'w'
+ * to scroll down in a viewport: 'down', '2', 's'
+ * to page up in a viewport: 'pageup'
+ * to page down in a viewport: 'pagedown'
+ * to scroll to top of viewport: 'home'
+ * to scroll bottom of viewport: 'end'
+ * to return to main menu: 'esc'
+ * to select an item from a menu: 'enter', 'return'
+ * to open a folder in a file broweser: 'right'
+ * to open the parent folder in a file broweser: 'left'
+`)
+			l, c = m.detail.Update(helpMsg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(detailModel); ok {
+				m.detail = ll
+			}
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", prevView, msg)))
 			if prevView == msg {
@@ -134,21 +173,21 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, c
 		}
 	case tea.WindowSizeMsg:
-		menuWidth := m.menu.DesiredWidth()
-		if maximizeMenu(m.usecase) {
-			menuWidth = msg.Width - 2
-		}
+		widthOfPaddingAndBorder := 4
+		heightOfPaddingAndBorder := 2
+		statusViewPortHeight := 4
+		menuWidth := lipgloss.Width(m.menu.View())
 		menuResize := SizeMsg{
 			Width:  menuWidth,
-			Height: msg.Height - 9,
+			Height: msg.Height - statusViewPortHeight - 2*heightOfPaddingAndBorder - 1,
 		}
 		detailResize := SizeMsg{
-			Width:  msg.Width - menuWidth - 23,
-			Height: msg.Height - 8,
+			Width:  msg.Width - menuWidth - 2*widthOfPaddingAndBorder,
+			Height: msg.Height - statusViewPortHeight - 2*heightOfPaddingAndBorder,
 		}
 		statusResize := SizeMsg{
-			Width:  msg.Width - 4,
-			Height: 4,
+			Width:  msg.Width - widthOfPaddingAndBorder,
+			Height: statusViewPortHeight,
 		}
 		sm, c := m.menu.Update(menuResize)
 		if mm, ok := sm.(menuModel); ok {
@@ -165,8 +204,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = mm
 			cmds = append(cmds, c)
 		}
-		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
-		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
+		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
+		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
 		return m, tea.Batch(cmds...)
 
 	default:
@@ -200,10 +239,6 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
-}
-
-func maximizeMenu(v usecaseView) bool {
-	return v == loadCharSubView
 }
 
 var (

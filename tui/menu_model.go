@@ -19,17 +19,15 @@ type menuModel struct {
 	form    *huh.Form
 	sel     *huh.Select[string]
 	file    *huh.FilePicker
+	theme   *huh.Theme
 	msg     NewMenuMessage
 	usecase usecaseView
 	c       model.Character
+	size    SizeMsg
 }
 
-func newMenuModel() menuModel {
-	return menuModel{}
-}
-
-func (m menuModel) DesiredWidth() (w int) {
-	return 24
+func newMenuModel(theme *huh.Theme) menuModel {
+	return menuModel{theme: theme}
 }
 
 // Init implements tea.Model.
@@ -53,26 +51,45 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	case NewMenuMessage:
 		m.msg = msg
 		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items(m.c)...)...).Title(msg.title)
-		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true)
+		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true).WithTheme(m.theme)
+		//select a min size, the form with push out from there
+		m.form.WithWidth(10)
+		m.sel.WithWidth(10)
+		if m.size.Height > 0 {
+			m.form.WithHeight(m.size.Height - 1)
+			m.sel.WithHeight(m.size.Height - 1)
+		}
+		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("make form %s with sz %s", msg.title, m.size)))
 		// cmd = tea.WindowSize()
 		cmds = append(cmds, cmd, m.form.Init())
 	case SizeMsg:
+		if m.file != nil {
+			msg.Height += 2
+		}
 		if m.form != nil {
 			m.form = m.form.WithWidth(msg.Width).WithHeight(msg.Height)
+			cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set form %s with sz %s", m.msg.title, m.size)))
 		}
-		// m.content = m.form.View()
+		if m.sel != nil {
+			m.sel.WithWidth(msg.Width).WithHeight(msg.Height - 1)
+		}
+		if m.file != nil {
+			m.file.WithWidth(msg.Width).WithHeight(msg.Height - 1)
+		}
+		m.size = msg
 	case usecaseView:
 		m.usecase = msg
 		switch msg {
-		case mainView:
+		case mainView, mainHelpView:
 			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
 			cmds = append(cmds, newCmd(
 				NewMenuMessage{
 					title: "Main Menu",
-					keys:  []any{"Create Character", "Load Character", "Quit"},
+					keys:  []any{"Create Character", "Load Character", "Help", "Quit"},
 					options: map[string]tea.Cmd{
 						"Create Character": newCmd(newCharFileMsg{}),
 						"Load Character":   makeUsecaseTransition(loadCharSubView),
+						"Help":             makeUsecaseTransition(mainHelpView),
 						"Quit":             tea.Quit},
 				}))
 			cmds = append(cmds, tea.WindowSize())
@@ -106,7 +123,10 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 				Title("Load a Character File").
 				Description("Select a .yaml character file").
 				AllowedTypes([]string{".yaml", ".yml"})
-			m.form = huh.NewForm(huh.NewGroup(m.file)).WithShowHelp(true)
+			//select a min size, the form with push out from there
+			m.file.WithWidth(10)
+			m.file.WithHeight(10)
+			m.form = huh.NewForm(huh.NewGroup(m.file)).WithShowHelp(true).WithTheme(m.theme)
 			cmds = append(cmds, m.file.Init(), tea.WindowSize())
 		case manageCharView:
 			cmds = append(cmds, newCmd(NewMenuMessage{

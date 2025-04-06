@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
+	"github.com/dan-frohlich/battlestations/character"
 )
 
 type App struct {
@@ -13,16 +14,17 @@ type App struct {
 }
 
 func NewApp() *App {
-	theme := huh.ThemeCharm()
+	theme := huh.ThemeBase16()
 
 	a := &App{
 		model: &mainModel{
 			focus:   menuPanel,
 			usecase: mainView,
-			menu:    newMenuModel(),
+			menu:    newMenuModel(theme),
 			detail:  newDetailModel(),
 			status:  newStatusModel(theme),
 			file:    FileModel{},
+			manager: &character.Manager{},
 		},
 	}
 	a.model.app = a

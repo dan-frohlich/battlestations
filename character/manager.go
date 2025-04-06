@@ -20,6 +20,10 @@ func (m *Manager) SetCharacter(c model.Character) {
 	}
 }
 
+func (m *Manager) GetCharacter() model.Character {
+	return m.character
+}
+
 func (m *Manager) Print() {
 	pc := char2Print(m.character)
 	_ = print.WritePDFFile(pc)

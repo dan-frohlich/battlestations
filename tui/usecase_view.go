@@ -5,6 +5,7 @@ type usecaseView int
 const (
 	_ usecaseView = iota
 	mainView
+	mainHelpView
 	loadCharSubView
 	quitSubView
 	newCharView

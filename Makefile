@@ -25,10 +25,14 @@ no-dirty:
 # QUALITY CONTROL
 # ==================================================================================== #
 
+## format: format code
+.PHONY: format
+format:
+	go fmt ./...
+
 ## tidy: format code and tidy modfile
 .PHONY: tidy
-tidy:
-	go fmt ./...
+tidy: format
 	go mod tidy -v
 
 ## check: run quality control checks
@@ -57,12 +61,11 @@ test/cover:
 	go tool cover -html=/tmp/coverage.out
 
 .PHONY: generate
-generate: 
+generate:
 	go generate ./...
 
 .PHONY: lint
-lint: 
-	find . -name "*.go" -exec gofmt -w {} \;
+lint: format
 	golangci-lint run
 
 .PHONY: check

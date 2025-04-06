@@ -25,6 +25,7 @@ func (f FileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case newCharFileMsg:
 		cmds = append(cmds, newCmd(model.Character{}), makeStatusCmd(infoLevel, "created character"))
 	case loadCharFileMsg:
+		//TOTO refactor loading char as a tea.Cmd
 		b, e := os.ReadFile(string(msg))
 		if e != nil {
 			return f, tea.Batch(
