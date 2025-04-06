@@ -35,7 +35,7 @@ func TestManagerLoadAndPrint(t *testing.T) {
 					return
 				}
 				m := &Manager{character: c}
-				m.Print()
+				m.Print("")
 			})
 	}
 }

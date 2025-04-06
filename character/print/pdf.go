@@ -19,10 +19,15 @@ const (
 	smImgFNm      = "sheet_sm.png"
 )
 
-func WritePDFFile(charData BSChar) error {
+func WritePDFFile(charData BSChar, fName string) error {
 	pdf, _ := renderPDF(charData)
+	// name := DefaultPDFOutPutFileName(charData)
+	return pdf.OutputFileAndClose(fName)
+}
+
+func DefaultPDFOutPutFileName(charData BSChar) string {
 	name := fmt.Sprintf("%s_%v_%v.pdf", charData.Name, charData.Rank, charData.Prestige)
-	return pdf.OutputFileAndClose(name)
+	return name
 }
 
 func WritePDF(charData BSChar, output io.WriteCloser) error {

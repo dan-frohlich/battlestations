@@ -24,9 +24,17 @@ func (m *Manager) GetCharacter() model.Character {
 	return m.character
 }
 
-func (m *Manager) Print() {
+func (m *Manager) Print(fName string) {
 	pc := char2Print(m.character)
-	_ = print.WritePDFFile(pc)
+	if fName == "" {
+		fName = print.DefaultPDFOutPutFileName(pc)
+	}
+	_ = print.WritePDFFile(pc, fName)
+}
+
+func (m *Manager) DefaultPDFOutPutFileName() string {
+	pc := char2Print(m.character)
+	return print.DefaultPDFOutPutFileName(pc)
 }
 
 func char2Print(c model.Character) (pc print.BSChar) {

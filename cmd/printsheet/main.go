@@ -24,7 +24,8 @@ func main() {
 	charData, e := print.LoadCharFromReader(r)
 	checkFatal(e, "load character")
 
-	e = print.WritePDFFile(charData)
+	fName := print.DefaultPDFOutPutFileName(charData)
+	e = print.WritePDFFile(charData, fName)
 	checkFatal(e, "write pdf")
 }
 

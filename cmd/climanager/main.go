@@ -51,7 +51,7 @@ func printCharAction(fileName string) {
 
 	m := &character.Manager{}
 	m.SetCharacter(c)
-	m.Print()
+	m.Print("")
 }
 
 func checkFatal(err error, msg string) {
