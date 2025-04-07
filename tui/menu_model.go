@@ -20,7 +20,7 @@ type menuModel struct {
 	sel     *huh.Select[string]
 	file    *huh.FilePicker
 	theme   *huh.Theme
-	msg     NewMenuMessage
+	msg     newMenuMsg
 	usecase usecaseView
 	c       model.Character
 	size    SizeMsg
@@ -48,7 +48,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.Character:
 		m.c = msg
-	case NewMenuMessage:
+	case newMenuMsg:
 		m.msg = msg
 		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items(m.c)...)...).Title(msg.title)
 		m.form = huh.NewForm(huh.NewGroup(m.sel)).WithShowHelp(true).WithTheme(m.theme)
@@ -59,16 +59,16 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			m.form.WithHeight(m.size.Height - 1)
 			m.sel.WithHeight(m.size.Height - 1)
 		}
-		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("make form %s with sz %s", msg.title, m.size)))
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("make form %s with sz %s", msg.title, m.size)))
 		// cmd = tea.WindowSize()
-		cmds = append(cmds, cmd, m.form.Init())
+		cmds = append(cmds, cmd, m.form.Init(), tea.WindowSize(), newCmd(menuLoaded(msg.title)))
 	case SizeMsg:
 		if m.file != nil {
 			msg.Height += 2
 		}
 		if m.form != nil {
 			m.form = m.form.WithWidth(msg.Width).WithHeight(msg.Height)
-			cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set form %s with sz %s", m.msg.title, m.size)))
+			// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set form %s with sz %s", m.msg.title, m.size)))
 		}
 		if m.sel != nil {
 			m.sel.WithWidth(msg.Width).WithHeight(msg.Height - 1)
@@ -83,7 +83,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 		case mainView, mainHelpView:
 			// cmds = append(cmds, makeStatusCmd(infoLevel, "selected main menu"))
 			cmds = append(cmds, newCmd(
-				NewMenuMessage{
+				newMenuMsg{
 					title: "Main Menu",
 					keys:  []any{"Create Character", "Load Character", "Help", "Quit"},
 					options: map[string]tea.Cmd{
@@ -95,7 +95,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			cmds = append(cmds, tea.WindowSize())
 		case newCharView:
 			cmds = append(cmds,
-				newCmd(NewMenuMessage{
+				newCmd(newMenuMsg{
 					title: "Create Character",
 					keys: []any{
 						"main menu",
@@ -116,20 +116,21 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			cmds = append(cmds, tea.WindowSize())
 		case loadCharSubView:
 			cd, _ := os.Getwd()
+			const title = "Load a Character File"
 			m.file = huh.NewFilePicker().
 				Picking(true).
 				DirAllowed(false).
 				CurrentDirectory(cd).
-				Title("Load a Character File").
+				Title(title).
 				Description("Select a .yaml character file").
 				AllowedTypes([]string{".yaml", ".yml"})
 			//select a min size, the form with push out from there
 			m.file.WithWidth(10)
 			m.file.WithHeight(10)
 			m.form = huh.NewForm(huh.NewGroup(m.file)).WithShowHelp(true).WithTheme(m.theme)
-			cmds = append(cmds, m.file.Init(), tea.WindowSize())
+			cmds = append(cmds, m.file.Init(), tea.WindowSize(), newCmd(menuLoaded(title)))
 		case manageCharView:
-			cmds = append(cmds, newCmd(NewMenuMessage{
+			cmds = append(cmds, newCmd(newMenuMsg{
 				title: "Manage Character",
 				keys: []any{
 					"main menu",
@@ -153,8 +154,6 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			//* use the manager to export the character to pdf
 
 			// OPEN QUESTIONS
-			//* Q: is there a way to open a model dialog in bubbletea?
-			//* A: possibly! SEE THIS: https://github.com/rmhubbert/bubbletea-overlay/tree/main/example
 			//* Q: ask the user to name the export file or just use a default?
 			//* A: TODO
 			//* Q: ask the user to select the target folder or just use a default?

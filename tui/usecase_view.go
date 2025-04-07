@@ -31,6 +31,8 @@ func (u usecaseView) String() string {
 	switch u {
 	case mainView:
 		return "main_usecase"
+	case mainHelpView:
+		return "main_help_usecase"
 	case loadCharSubView:
 		return "load_char_usecase"
 	case newCharView:

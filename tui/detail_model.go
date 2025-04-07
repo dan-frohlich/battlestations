@@ -20,11 +20,6 @@ func newDetailModel() detailModel {
 	}
 }
 
-func (m detailModel) SetContent(content string) detailModel {
-	m.view.SetContent(content)
-	return m
-}
-
 // Init implements tea.Model.
 func (m detailModel) Init() tea.Cmd {
 	return nil
@@ -32,11 +27,13 @@ func (m detailModel) Init() tea.Cmd {
 
 // Update implements tea.Model.
 func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+	// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("detail: [%T[1] - %[1]s", stringMsg(msg))))
 	switch msg := msg.(type) {
 	case model.Character:
 		out, err := yaml.Marshal(msg)
 		if err != nil {
-			return m, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.Name)
+			cmds = append(cmds, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.Name))
 		}
 		m.view.SetContent(string(out))
 	case displayHelpMsg:
@@ -47,7 +44,7 @@ func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		viewportControl(&m.view, msg)
 	}
-	return m, nil
+	return m, tea.Batch(cmds...)
 
 }
 
@@ -72,8 +69,6 @@ func viewportControl(view *viewport.Model, msg tea.Msg) {
 			_ = view.GotoTop()
 		case "end":
 			_ = view.GotoBottom()
-			// default:
-			// 	eventLog(msg)
 		}
 	}
 }

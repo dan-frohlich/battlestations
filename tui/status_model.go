@@ -1,10 +1,7 @@
 package tui
 
 import (
-	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -67,10 +64,10 @@ func (m statusModel) handleStatusUpdate(sm statusMsg) statusModel {
 	default:
 		s = statusStyle.Render(sm.String())
 	}
-	log(fmt.Sprintf("[%s] - [%s] - %s", sm.ts.Format(time.RFC3339Nano), sm.caller, s))
-	for _, s := range sm.callstack {
-		log(s)
-	}
+	// log(fmt.Sprintf("[%s] - [%s] - %s", sm.ts.Format(time.RFC3339Nano), sm.caller, s))
+	// for _, s := range sm.callstack {
+	// 	log(s)
+	// }
 
 	old := strings.Split(m.content, "\n")
 	if len(old) > 0 && old[len(old)-1] == s {
@@ -82,39 +79,6 @@ func (m statusModel) handleStatusUpdate(sm statusMsg) statusModel {
 	_ = m.view.GotoBottom()
 	return m
 }
-
-func log(msg string) {
-
-	file, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return
-	}
-	defer func() { _ = file.Close() }()
-	// Write the string to the file
-	_, _ = file.WriteString(msg + "\n")
-}
-
-// func eventLog(msg tea.Msg) {
-
-// 	ts := time.Now().Format(time.RFC3339Nano)
-// 	var logMsg string
-// 	switch tp := msg.(type) {
-// 	case panel, usecaseView, SizeMsg, ContentMsg, loadCharFileMsg:
-// 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
-// 	case tea.KeyMsg:
-// 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[2]s\n", ts, msg)
-// 	case statusMsg:
-// 		//skip
-// 	case model.Character:
-// 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.Name)
-// 	case NewMenuMessage:
-// 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %[3]s\n", ts, msg, tp.title)
-// 	default:
-// 		logMsg = fmt.Sprintf("[%s] - [%[2]T] %#[2]v\n", ts, msg)
-// 	}
-// 	log(logMsg)
-
-// }
 
 var (
 	gray = lipgloss.AdaptiveColor{Light: "#DDDDDD", Dark: "#444444"}
@@ -133,7 +97,7 @@ var (
 	// indigo   = lipgloss.AdaptiveColor{Light: "#5A56E0", Dark: "#7571F9"}
 	// cream    = lipgloss.AdaptiveColor{Light: "#FFFDF5", Dark: "#FFFDF5"}
 	// fuchsia  = lipgloss.Color("#F780E2")
-	// green    = lipgloss.AdaptiveColor{Light: "#02BA84", Dark: "#02BF87"}
+	// green = lipgloss.AdaptiveColor{Light: "#02BA84", Dark: "#02BF87"}
 	// red      = lipgloss.AdaptiveColor{Light: "#FF4672", Dark: "#ED567A"}
 
 	// background = lipgloss.AdaptiveColor{Dark: "#282a36"}

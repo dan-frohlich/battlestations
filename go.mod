@@ -1,6 +1,8 @@
 module github.com/dan-frohlich/battlestations
 
-go 1.22
+go 1.23.4
+
+toolchain go1.24.2
 
 require (
 	github.com/charmbracelet/bubbles v0.20.0
@@ -8,6 +10,7 @@ require (
 	github.com/charmbracelet/huh v0.6.0
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2
+	github.com/rmhubbert/bubbletea-overlay v0.3.2
 	github.com/vincent-petithory/dataurl v1.0.0
 	gopkg.in/yaml.v2 v2.4.0
 )

@@ -14,7 +14,6 @@ import (
 var _ tea.Model = &mainModel{}
 
 type mainModel struct {
-	app     *App
 	focus   panel
 	usecase usecaseView
 	menu    menuModel
@@ -32,7 +31,9 @@ func (m mainModel) Init() tea.Cmd {
 	cmds = append(cmds, m.detail.Init())
 	cmds = append(cmds, m.status.Init())
 	onStart.Do(func() {
-		cmds = append(cmds, makeUsecaseTransition(mainView), makeUsecaseTransition(mainHelpView))
+		cmds = append(cmds,
+			//  makeUsecaseTransition(mainView),
+			makeUsecaseTransition(mainHelpView))
 	})
 	return tea.Batch(cmds...)
 }
@@ -49,6 +50,7 @@ func (m mainModel) charNeedsBasics() bool {
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// log(fmt.Sprintf("[%s] - called main.update([%[2]T][%[2]s])", time.Now().Format(time.RFC3339Nano), msg))
 	// eventLog(msg)
 	var (
 		cmds []tea.Cmd
@@ -125,30 +127,30 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case loadCharSubView:
 		case manageCharView:
 		case mainHelpView:
-			l, c := m.menu.Update(msg)
-			cmds = append(cmds, c)
-			if ll, ok := l.(menuModel); ok {
-				m.menu = ll
-			}
-			helpMsg := displayHelpMsg(
-				`Welcome to the Battlestations Character Manager
- * to change focus: 'tab' or 'shift+tab'
- * to scroll up in a viewport: 'up', '8', 'w'
- * to scroll down in a viewport: 'down', '2', 's'
- * to page up in a viewport: 'pageup'
- * to page down in a viewport: 'pagedown'
- * to scroll to top of viewport: 'home'
- * to scroll bottom of viewport: 'end'
- * to return to main menu: 'esc'
- * to select an item from a menu: 'enter', 'return'
- * to open a folder in a file broweser: 'right'
- * to open the parent folder in a file broweser: 'left'
-`)
-			l, c = m.detail.Update(helpMsg)
-			cmds = append(cmds, c)
-			if ll, ok := l.(detailModel); ok {
-				m.detail = ll
-			}
+			// 			l, c := m.menu.Update(msg)
+			// 			cmds = append(cmds, c)
+			// 			if ll, ok := l.(menuModel); ok {
+			// 				m.menu = ll
+			// 			}
+			// 			helpMsg := displayHelpMsg(
+			// 				`Welcome to the Battlestations Character Manager
+			//  * to change focus: 'tab' or 'shift+tab'
+			//  * to scroll up in a viewport: 'up', '8', 'w'
+			//  * to scroll down in a viewport: 'down', '2', 's'
+			//  * to page up in a viewport: 'pageup'
+			//  * to page down in a viewport: 'pagedown'
+			//  * to scroll to top of viewport: 'home'
+			//  * to scroll bottom of viewport: 'end'
+			//  * to return to main menu: 'esc'
+			//  * to select an item from a menu: 'enter', 'return'
+			//  * to open a folder in a file broweser: 'right'
+			//  * to open the parent folder in a file broweser: 'left'
+			// `)
+			// 			l, c = m.detail.Update(helpMsg)
+			// 			cmds = append(cmds, c)
+			// 			if ll, ok := l.(detailModel); ok {
+			// 				m.detail = ll
+			// 			}
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", prevView, msg)))
 			if prevView == msg {
@@ -160,12 +162,14 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("transitioning from view %s to view %s", m.usecase, msg)))
 		return m, tea.Batch(cmds...)
-	case NewMenuMessage:
+	case newMenuMsg:
+		var cmds []tea.Cmd
 		sm, c := m.menu.Update(msg)
+		cmds = append(cmds, c)
 		if mm, ok := sm.(menuModel); ok {
 			m.menu = mm
-			return m, c
 		}
+		return m, tea.Batch(cmds...)
 	case statusMsg:
 		sm, c := m.status.Update(msg)
 		if mm, ok := sm.(statusModel); ok {
@@ -204,8 +208,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status = mm
 			cmds = append(cmds, c)
 		}
-		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
-		cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("win size: %s", SizeMsg{Height: msg.Height, Width: msg.Width})))
+		// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("set sizes: m:%s d:%s s%s", menuResize, detailResize, statusResize)))
 		return m, tea.Batch(cmds...)
 
 	default:
@@ -213,7 +217,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch t {
 		case "huh.nextFieldMsg", "huh.nextGroupMsg", "tea.windowSizeMsg", "filepicker.readDirMsg":
 		default:
-			cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("unhandled message %T", msg)))
+			// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("unhandled message %T", msg)))
 		}
 	}
 
@@ -242,23 +246,24 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 var (
-	style      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true).Padding(0, 1, 0, 1)
-	focusStyle = lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true).Padding(0, 1, 0, 1)
+	borderStyle        = lipgloss.NewStyle().Border(lipgloss.RoundedBorder(), true).Padding(0, 1, 0, 1)
+	focusedBorderStyle = lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true).Padding(0, 1, 0, 1)
 )
 
 func (m mainModel) View() string {
+	// log(fmt.Sprintf("[%s] - called detail.view", time.Now().Format(time.RFC3339Nano)))
 	var (
-		menuStyle   = style
-		detailStyle = style
-		statusStyle = style
+		menuStyle   = borderStyle
+		detailStyle = borderStyle
+		statusStyle = borderStyle
 	)
 	switch m.focus {
 	case menuPanel:
-		menuStyle = focusStyle
+		menuStyle = focusedBorderStyle
 	case detailPanel:
-		detailStyle = focusStyle
+		detailStyle = focusedBorderStyle
 	case statusPanel:
-		statusStyle = focusStyle
+		statusStyle = focusedBorderStyle
 	}
 	menu := menuStyle.Render(m.menu.View())
 	detail := detailStyle.Render(m.detail.View())

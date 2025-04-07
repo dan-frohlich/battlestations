@@ -32,11 +32,10 @@ const (
 )
 
 type statusMsg struct {
-	lvl       statusLevel
-	msg       string
-	ts        time.Time
-	caller    string
-	callstack []string
+	lvl    statusLevel
+	msg    string
+	ts     time.Time
+	caller string
 }
 
 func (sm statusMsg) String() string {
@@ -62,7 +61,18 @@ type displayHelpMsg string
 type loadCharFileMsg string
 type newCharFileMsg struct{}
 
-type NewMenuMessage struct {
+type popupMsg struct {
+	title   string
+	message string
+}
+
+func (pop popupMsg) String() string {
+	return fmt.Sprintf("{t:%s, m:%s}", pop.title, pop.message)
+}
+
+type menuLoaded string
+
+type newMenuMsg struct {
 	title   string
 	options map[string]tea.Cmd
 	keys    []any
@@ -80,10 +90,10 @@ func newCmd(message tea.Msg) tea.Cmd {
 }
 
 func makeUsecaseTransition(v usecaseView) tea.Cmd {
-	return tea.Batch(newCmd(v), makeStatusCmd(debugLevel, "you selected "+v.String()))
+	return newCmd(v) //tea.Batch(newCmd(v), makeStatusCmd(debugLevel, "you selected "+v.String()))
 }
 
-func (nmm NewMenuMessage) items(c model.Character) (result []string) {
+func (nmm newMenuMsg) items(c model.Character) (result []string) {
 	result = make([]string, 0, len(nmm.keys))
 	for _, key := range nmm.keys {
 		switch key := key.(type) {
@@ -118,13 +128,13 @@ func makeStatusCmd(l statusLevel, s string) tea.Cmd {
 	return func() tea.Msg {
 		switch l {
 		case debugLevel:
-			return statusMsg{ts: time.Now(), lvl: l, msg: "[d] " + s, caller: caller}
+			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		case infoLevel:
-			return statusMsg{ts: time.Now(), lvl: l, msg: "[i] " + s, caller: caller}
+			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		case warnLevel:
-			return statusMsg{ts: time.Now(), lvl: l, msg: "[w] " + s, caller: caller}
+			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		case errorLevel:
-			return statusMsg{ts: time.Now(), lvl: l, msg: "[e] " + s, caller: caller}
+			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		default:
 			return statusMsg{ts: time.Now(), lvl: l, msg: s, caller: caller}
 		}
@@ -136,3 +146,14 @@ func makeFocusCmd(p panel) tea.Cmd {
 		return p
 	}
 }
+
+// func stringMsg(msg tea.Msg) string {
+// 	switch v := msg.(type) {
+// 	case fmt.Stringer:
+// 		return v.String()
+// 	case string:
+// 		return v
+// 	default:
+// 		return fmt.Sprintf("%#v", v)
+// 	}
+// }
