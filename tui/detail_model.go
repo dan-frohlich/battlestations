@@ -3,7 +3,6 @@ package tui
 import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/dan-frohlich/battlestations/character/model"
 	"gopkg.in/yaml.v2"
 )
 
@@ -30,10 +29,16 @@ func (m detailModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	// cmds = append(cmds, makeStatusCmd(debugLevel, fmt.Sprintf("detail: [%T[1] - %[1]s", stringMsg(msg))))
 	switch msg := msg.(type) {
-	case model.Character:
-		out, err := yaml.Marshal(msg)
+	case characterLoadedMsg:
+		out, err := yaml.Marshal(msg.c)
 		if err != nil {
-			cmds = append(cmds, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.Name))
+			cmds = append(cmds, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.c.Name))
+		}
+		m.view.SetContent(string(out))
+	case characterModifiedMsg:
+		out, err := yaml.Marshal(msg.c)
+		if err != nil {
+			cmds = append(cmds, makeStatusCmd(errorLevel, "failed to marshal char: "+msg.c.Name))
 		}
 		m.view.SetContent(string(out))
 	case displayHelpMsg:

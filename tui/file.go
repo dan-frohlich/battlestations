@@ -23,7 +23,7 @@ func (f FileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case newCharFileMsg:
-		cmds = append(cmds, newCmd(model.Character{}), makeStatusCmd(infoLevel, "created character"))
+		cmds = append(cmds, newCmd(characterLoadedMsg{}), makeStatusCmd(infoLevel, "created character"))
 		name := "[New Character]"
 		cmds = append(cmds, newCmd(popupMsg{title: "Loaded Character", message: name}))
 	case loadCharFileMsg:
@@ -49,7 +49,7 @@ func (f FileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for _, issue := range issues {
 			cmds = append(cmds, makeStatusCmd(warnLevel, issue.String()))
 		}
-		cmds = append(cmds, newCmd(c), makeStatusCmd(infoLevel, "loaded character "+c.Name))
+		cmds = append(cmds, newCmd(characterLoadedMsg{c: c, sourceFile: string(msg)}), makeStatusCmd(infoLevel, "loaded character "+c.Name))
 		name := c.Name
 		if c.Name == "" {
 			name = "[New Character]"

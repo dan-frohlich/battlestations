@@ -34,7 +34,7 @@ func TestManagerLoadAndPrint(t *testing.T) {
 					t.Errorf("error loading charatcer: %s", err)
 					return
 				}
-				m := &Manager{character: c}
+				m := &Manager{character: &c}
 				m.Print("")
 			})
 	}

@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"os"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
@@ -46,8 +47,28 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 	var cmds []tea.Cmd
 	var l tea.Model
 	switch msg := msg.(type) {
-	case model.Character:
-		m.c = msg
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "home":
+			if m.form == nil {
+				return m, makeUsecaseTransition(mainHelpView)
+			} else {
+				l, cmd = m.form.Update(msg)
+				if lm, ok := l.(*huh.Form); ok {
+					m.form = lm
+				}
+				cmds = append(cmds, cmd)
+			}
+		}
+		if m.form != nil {
+			l, cmd = m.form.Update(msg)
+			if lm, ok := l.(*huh.Form); ok {
+				m.form = lm
+			}
+			cmds = append(cmds, cmd)
+		}
+	case characterLoadedMsg:
+		m.c = msg.c
 	case newMenuMsg:
 		m.msg = msg
 		m.sel = huh.NewSelect[string]().Options(huh.NewOptions(msg.items(m.c)...)...).Title(msg.title)
@@ -185,6 +206,7 @@ func (m menuModel) Update(msg tea.Msg) (_ tea.Model, cmd tea.Cmd) {
 			if actionCmd, ok := m.msg.options[sv]; ok && actionCmd != nil {
 				cmds = append(cmds, actionCmd, tea.WindowSize())
 			}
+			logWithTS(time.Now(), "submitting form and set form=nil for usecase: "+stringMsg(m.usecase)+" and msg: "+stringMsg(msg))
 			m.form = nil
 			m.sel = nil
 		}
@@ -201,6 +223,8 @@ func (m menuModel) View() string {
 				return fmt.Sprintf("Selected: %s", m.file.GetValue())
 			}
 			return m.file.View()
+		} else {
+			logWithTS(time.Now(), fmt.Sprintf("[w] - nil form in menu View(), usecase: %s", m.usecase))
 		}
 	default:
 		if m.form != nil {
@@ -212,7 +236,10 @@ func (m menuModel) View() string {
 				}
 			}
 			return m.form.View()
+		} else {
+			logWithTS(time.Now(), fmt.Sprintf("[w] - nil form in menu View(), usecase: %s", m.usecase))
 		}
 	}
+	logWithTS(time.Now(), "[w] - menu set to loading...")
 	return "loading..."
 }

@@ -55,15 +55,10 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmds []tea.Cmd
 	)
-	//handle global commands: exit / quite / tab
 	switch msg := msg.(type) {
-
-	// Is it a key press?
 	case tea.KeyMsg:
-		// what key was pressed?
 		switch msg.String() {
 
-		//  exit the program.
 		case "f9":
 			return m, tea.Quit
 		case "tab":
@@ -91,8 +86,9 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.file = ll
 		}
 		return m, c
-	case model.Character:
-		m.manager.SetCharacter(msg)
+	case characterLoadedMsg:
+		m.manager.SetCharacter(&msg.c)
+		m.manager.SourceFile = msg.sourceFile
 		l, c := m.detail.Update(msg)
 		if ll, ok := l.(detailModel); ok {
 			m.detail = ll
@@ -109,6 +105,65 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		cmds = append(cmds, makeUsecaseTransition(v))
 		return m, tea.Batch(cmds...)
+	case characterModifiedMsg:
+		l, c := m.detail.Update(msg)
+		if ll, ok := l.(detailModel); ok {
+			m.detail = ll
+		}
+		cmds = append(cmds, c)
+		l, c = m.menu.Update(msg)
+		if ll, ok := l.(menuModel); ok {
+			m.menu = ll
+		}
+		cmds = append(cmds, c)
+		v := manageCharView
+		if m.charNeedsBasics() {
+			v = newCharView
+		}
+		cmds = append(cmds, makeUsecaseTransition(v))
+		return m, tea.Batch(cmds...)
+	case selectedStatsMsg:
+		m.manager.Modified = true
+		c := m.manager.GetCharacter()
+		c.StartingSkillSet = model.SkillSet(msg.selectedStatArray.String())
+		lvls := c.StartingSkillSet.AsLevels()
+		for i, skill := range msg.assignedSkills {
+			switch skill {
+			case skillAthletics:
+				if c.Athletics == 0 {
+					c.Athletics = lvls[i]
+				}
+			case skillCombat:
+				if c.Combat == 0 {
+					c.Combat = lvls[i]
+				}
+			case skillEngineering:
+				if c.Engineering == 0 {
+					c.Engineering = lvls[i]
+				}
+			case skillPilot:
+				if c.Pilot == 0 {
+					c.Pilot = lvls[i]
+				}
+			case skillScience:
+				if c.Science == 0 {
+					c.Science = lvls[i]
+				}
+			case optSkillDiplomacy:
+				if c.Diplomacy == 0 {
+					c.Diplomacy = model.OptionalSkillLevel(lvls[i])
+				}
+			case optSkillPsionics:
+				if c.Psionics == 0 {
+					c.Psionics = model.OptionalSkillLevel(lvls[i])
+				}
+			case optSkillSanity:
+				if c.Sanity == 0 {
+					c.Sanity = model.OptionalSkillLevel(lvls[i])
+				}
+			}
+		}
+		cmds = append(cmds, newCmd(characterModifiedMsg{c: c}))
 	case panel:
 		m.focus = msg
 		return m, nil
@@ -122,35 +177,43 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.menu = ll
 		}
 		switch msg {
-		case newCharView:
-		case mainView:
-		case loadCharSubView:
-		case manageCharView:
+		case newCharView, mainView, loadCharSubView, manageCharView, setStatsSubView:
+			//handle elsewhere
+			l, c := m.menu.Update(msg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(menuModel); ok {
+				m.menu = ll
+			}
+			l, c = m.detail.Update(msg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(detailModel); ok {
+				m.detail = ll
+			}
 		case mainHelpView:
-			// 			l, c := m.menu.Update(msg)
-			// 			cmds = append(cmds, c)
-			// 			if ll, ok := l.(menuModel); ok {
-			// 				m.menu = ll
-			// 			}
-			// 			helpMsg := displayHelpMsg(
-			// 				`Welcome to the Battlestations Character Manager
-			//  * to change focus: 'tab' or 'shift+tab'
-			//  * to scroll up in a viewport: 'up', '8', 'w'
-			//  * to scroll down in a viewport: 'down', '2', 's'
-			//  * to page up in a viewport: 'pageup'
-			//  * to page down in a viewport: 'pagedown'
-			//  * to scroll to top of viewport: 'home'
-			//  * to scroll bottom of viewport: 'end'
-			//  * to return to main menu: 'esc'
-			//  * to select an item from a menu: 'enter', 'return'
-			//  * to open a folder in a file broweser: 'right'
-			//  * to open the parent folder in a file broweser: 'left'
-			// `)
-			// 			l, c = m.detail.Update(helpMsg)
-			// 			cmds = append(cmds, c)
-			// 			if ll, ok := l.(detailModel); ok {
-			// 				m.detail = ll
-			// 			}
+			l, c := m.menu.Update(msg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(menuModel); ok {
+				m.menu = ll
+			}
+			helpMsg := displayHelpMsg(
+				`Welcome to the Battlestations Character Manager
+ * to change focus: 'tab' or 'shift+tab'
+ * to scroll up in a viewport: 'up', '8', 'w'
+ * to scroll down in a viewport: 'down', '2', 's'
+ * to page up in a viewport: 'pageup'
+ * to page down in a viewport: 'pagedown'
+ * to scroll to top of viewport: 'home'
+ * to scroll bottom of viewport: 'end'
+ * to return to main menu: 'esc'
+ * to select an item from a menu: 'enter', 'return'
+ * to open a folder in a file browser: 'right'
+ * to open the parent folder in a file browser: 'left'
+`)
+			l, c = m.detail.Update(helpMsg)
+			cmds = append(cmds, c)
+			if ll, ok := l.(detailModel); ok {
+				m.detail = ll
+			}
 		default:
 			cmds = append(cmds, makeStatusCmd(errorLevel, fmt.Sprintf("failed to transition from view %s to view %s", prevView, msg)))
 			if prevView == msg {

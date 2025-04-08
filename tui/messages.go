@@ -12,6 +12,15 @@ import (
 
 type ContentMsg string
 
+type characterLoadedMsg struct {
+	c          model.Character
+	sourceFile string
+}
+
+type characterModifiedMsg struct {
+	c model.Character
+}
+
 type SizeMsg struct {
 	Width  int
 	Height int
@@ -64,10 +73,11 @@ type newCharFileMsg struct{}
 type popupMsg struct {
 	title   string
 	message string
+	nested  tea.Model
 }
 
 func (pop popupMsg) String() string {
-	return fmt.Sprintf("{t:%s, m:%s}", pop.title, pop.message)
+	return fmt.Sprintf("{t:%s, m:%s, n:[%T]}", pop.title, pop.message, pop.nested)
 }
 
 type menuLoaded string
@@ -147,13 +157,13 @@ func makeFocusCmd(p panel) tea.Cmd {
 	}
 }
 
-// func stringMsg(msg tea.Msg) string {
-// 	switch v := msg.(type) {
-// 	case fmt.Stringer:
-// 		return v.String()
-// 	case string:
-// 		return v
-// 	default:
-// 		return fmt.Sprintf("%#v", v)
-// 	}
-// }
+func stringMsg(msg tea.Msg) string {
+	switch v := msg.(type) {
+	case fmt.Stringer:
+		return v.String()
+	case string:
+		return v
+	default:
+		return fmt.Sprintf("%#v", v)
+	}
+}

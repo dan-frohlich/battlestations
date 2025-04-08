@@ -1,6 +1,14 @@
 package tui
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
+func logWithTS(ts time.Time, msg string) {
+	log(fmt.Sprintf("[%s] - %s)", time.Now().Format(time.RFC3339Nano), msg))
+}
 
 func log(msg string) {
 

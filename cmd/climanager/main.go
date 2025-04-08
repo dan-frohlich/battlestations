@@ -50,7 +50,7 @@ func printCharAction(fileName string) {
 	}
 
 	m := &character.Manager{}
-	m.SetCharacter(c)
+	m.SetCharacter(&c)
 	m.Print("")
 }
 

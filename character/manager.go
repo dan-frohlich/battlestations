@@ -9,23 +9,25 @@ import (
 )
 
 type Manager struct {
-	character model.Character
+	character  *model.Character
+	Modified   bool
+	SourceFile string
 }
 
-func (m *Manager) SetCharacter(c model.Character) {
+func (m *Manager) SetCharacter(c *model.Character) {
 	m.character = c
-	issues, _ := model.NewCharacterValidator().ValidateAll(c)
+	issues, _ := model.NewCharacterValidator().ValidateAll(*c)
 	for _, issue := range issues {
 		fmt.Println("validation issue:", issue)
 	}
 }
 
 func (m *Manager) GetCharacter() model.Character {
-	return m.character
+	return *m.character
 }
 
 func (m *Manager) Print(fName string) {
-	pc := char2Print(m.character)
+	pc := char2Print(*m.character)
 	if fName == "" {
 		fName = print.DefaultPDFOutPutFileName(pc)
 	}
@@ -33,7 +35,7 @@ func (m *Manager) Print(fName string) {
 }
 
 func (m *Manager) DefaultPDFOutPutFileName() string {
-	pc := char2Print(m.character)
+	pc := char2Print(*m.character)
 	return print.DefaultPDFOutPutFileName(pc)
 }
 

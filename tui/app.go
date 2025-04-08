@@ -23,8 +23,17 @@ func (app *App) Init() tea.Cmd {
 
 // Update implements tea.Model.
 func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log(fmt.Sprintf("[%s] - called app.update([%[2]T][%[2]s])", time.Now().Format(time.RFC3339Nano), msg))
+	logWithTS(time.Now(), fmt.Sprintf("called app.update([%[1]T][%[1]s])", msg))
 	var cmds []tea.Cmd
+
+	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "f9": //quit
+			return app, tea.Quit
+		}
+	}
 
 	l, c := app.overlay.Update(msg)
 	if ll, ok := l.(*olay); ok {
